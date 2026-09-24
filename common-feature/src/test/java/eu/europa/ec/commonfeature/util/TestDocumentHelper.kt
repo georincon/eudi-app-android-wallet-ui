@@ -27,6 +27,7 @@ import eu.europa.ec.eudi.wallet.document.IssuedDocument
 import eu.europa.ec.eudi.wallet.document.format.MsoMdocClaim
 import eu.europa.ec.eudi.wallet.document.format.MsoMdocData
 import eu.europa.ec.eudi.wallet.document.metadata.IssuerMetadata
+import eu.europa.ec.resourceslogic.R
 import eu.europa.ec.resourceslogic.provider.ResourceProvider
 import eu.europa.ec.testfeature.util.StringResourceProviderMocker.mockTransformToUiItemsStrings
 import eu.europa.ec.testfeature.util.mockedDefaultLocale
@@ -160,11 +161,12 @@ class TestDocumentHelper {
         val result = getReadableNameFromIdentifier(
             claimMetaData = null,
             userLocale = mockedDefaultLocale,
-            fallback = "family_name",
+            fallback = "unmapped_claim",
+            resourceProvider = resourceProvider,
         )
 
         // Then
-        assertEquals("family_name", result)
+        assertEquals("unmapped_claim", result)
     }
 
     // Case 2:
@@ -183,7 +185,8 @@ class TestDocumentHelper {
         val result = getReadableNameFromIdentifier(
             claimMetaData = claimMetaData,
             userLocale = mockedDefaultLocale,
-            fallback = "family_name",
+            fallback = "unmapped_claim",
+            resourceProvider = resourceProvider,
         )
 
         // Then
@@ -206,7 +209,8 @@ class TestDocumentHelper {
         val result = getReadableNameFromIdentifier(
             claimMetaData = claimMetaData,
             userLocale = mockedDefaultLocale,
-            fallback = "family_name",
+            fallback = "unmapped_claim",
+            resourceProvider = resourceProvider,
         )
 
         // Then
@@ -232,11 +236,38 @@ class TestDocumentHelper {
         val result = getReadableNameFromIdentifier(
             claimMetaData = claimMetaData,
             userLocale = mockedDefaultLocale,
-            fallback = "family_name",
+            fallback = "unmapped_claim",
+            resourceProvider = resourceProvider,
         )
 
         // Then
         assertEquals("Family name", result)
+    }
+
+    // Case 5:
+    // 1. fallback is a known PID/mDL claim identifier present in the local Spanish label map.
+    //
+    // Case 5 Expected Result:
+    // The local Spanish label, regardless of what claimMetaData carries.
+    @Test
+    fun `Given Case 5, When getReadableNameFromIdentifier is called, Then Case 5 Expected Result is returned`() {
+        // Given
+        val claimMetaData = mockedClaimMetaData(
+            mockedClaimDisplay(name = "Family name", locale = Locale.ENGLISH),
+        )
+        whenever(resourceProvider.getString(R.string.document_claim_family_name))
+            .thenReturn("Apellido(s)")
+
+        // When
+        val result = getReadableNameFromIdentifier(
+            claimMetaData = claimMetaData,
+            userLocale = mockedDefaultLocale,
+            fallback = "family_name",
+            resourceProvider = resourceProvider,
+        )
+
+        // Then
+        assertEquals("Apellido(s)", result)
     }
 
     //endregion
@@ -489,7 +520,7 @@ class TestDocumentHelper {
             listOf<ClaimDomain>(
                 ClaimDomain.Group(
                     key = "place_of_birth",
-                    displayTitle = "place_of_birth",
+                    displayTitle = "Lugar de nacimiento",
                     path = mockedMdocPidUiGroupPath,
                     items = listOf(
                         ClaimDomain.Primitive(
@@ -593,19 +624,19 @@ class TestDocumentHelper {
             listOf<ClaimDomain>(
                 ClaimDomain.Group(
                     key = "nationality",
-                    displayTitle = "nationality",
+                    displayTitle = "Nacionalidad",
                     path = mockedMdocPidUiGroupPath,
                     items = listOf(
                         ClaimDomain.Primitive(
                             key = "nationality",
-                            displayTitle = "nationality",
+                            displayTitle = "Nacionalidad",
                             path = mockedMdocPidDisclosurePath,
                             isRequired = false,
                             value = "SE",
                         ),
                         ClaimDomain.Primitive(
                             key = "nationality",
-                            displayTitle = "nationality",
+                            displayTitle = "Nacionalidad",
                             path = mockedMdocPidDisclosurePath,
                             isRequired = false,
                             value = "DK",
@@ -655,12 +686,12 @@ class TestDocumentHelper {
             listOf<ClaimDomain>(
                 ClaimDomain.Group(
                     key = "driving_privileges",
-                    displayTitle = "driving_privileges",
+                    displayTitle = "Categorías de conducción",
                     path = mockedMdlUiGroupPath,
                     items = listOf(
                         ClaimDomain.Group(
                             key = "driving_privileges-1",
-                            displayTitle = "driving_privileges 1",
+                            displayTitle = "Categorías de conducción 1",
                             path = mockedMdlUiGroupPath,
                             items = listOf(
                                 ClaimDomain.Primitive(
@@ -688,7 +719,7 @@ class TestDocumentHelper {
                         ),
                         ClaimDomain.Group(
                             key = "driving_privileges-2",
-                            displayTitle = "driving_privileges 2",
+                            displayTitle = "Categorías de conducción 2",
                             path = mockedMdlUiGroupPath,
                             items = listOf(
                                 ClaimDomain.Primitive(
@@ -820,19 +851,19 @@ class TestDocumentHelper {
             listOf<ClaimDomain>(
                 ClaimDomain.Group(
                     key = "nationalities",
-                    displayTitle = "nationalities",
+                    displayTitle = "Nacionalidad(es)",
                     path = mockedUiGroupPath,
                     items = listOf(
                         ClaimDomain.Primitive(
                             key = "nationalities",
-                            displayTitle = "nationalities",
+                            displayTitle = "Nacionalidad(es)",
                             path = mockedSdJwtDisclosurePath,
                             isRequired = false,
                             value = "SE",
                         ),
                         ClaimDomain.Primitive(
                             key = "nationalities",
-                            displayTitle = "nationalities",
+                            displayTitle = "Nacionalidad(es)",
                             path = mockedSdJwtDisclosurePath,
                             isRequired = false,
                             value = "DK",
@@ -934,14 +965,14 @@ class TestDocumentHelper {
             listOf<ClaimDomain>(
                 ClaimDomain.Primitive(
                     key = "family_name",
-                    displayTitle = "family_name",
+                    displayTitle = "Apellido(s)",
                     path = familyNamePath,
                     isRequired = false,
                     value = "ANDERSSON",
                 ),
                 ClaimDomain.Primitive(
                     key = "given_name",
-                    displayTitle = "given_name",
+                    displayTitle = "Nombre(s)",
                     path = givenNamePath,
                     isRequired = false,
                     value = "JAN",
@@ -987,7 +1018,7 @@ class TestDocumentHelper {
             listOf<ClaimDomain>(
                 ClaimDomain.Group(
                     key = "place_of_birth",
-                    displayTitle = "place_of_birth",
+                    displayTitle = "Lugar de nacimiento",
                     path = ClaimPathDomain.ofPlainKeys(
                         names = listOf("place_of_birth"),
                         type = ClaimType.SdJwtVc,
@@ -995,7 +1026,7 @@ class TestDocumentHelper {
                     items = listOf(
                         ClaimDomain.Primitive(
                             key = "locality",
-                            displayTitle = "locality",
+                            displayTitle = "Localidad",
                             path = disclosurePath,
                             isRequired = false,
                             value = "KATRINEHOLM",
@@ -1100,7 +1131,7 @@ class TestDocumentHelper {
             listOf<ClaimDomain>(
                 ClaimDomain.Group(
                     key = "address",
-                    displayTitle = "Address",
+                    displayTitle = "Dirección",
                     path = ClaimPathDomain.ofPlainKeys(
                         names = listOf("address"),
                         type = ClaimType.SdJwtVc,
@@ -1108,7 +1139,7 @@ class TestDocumentHelper {
                     items = listOf(
                         ClaimDomain.Group(
                             key = "region",
-                            displayTitle = "Region",
+                            displayTitle = "Región",
                             path = ClaimPathDomain.ofPlainKeys(
                                 names = listOf("address", "region"),
                                 type = ClaimType.SdJwtVc,
@@ -1176,7 +1207,7 @@ class TestDocumentHelper {
             listOf<ClaimDomain>(
                 ClaimDomain.Group(
                     key = "nationalities",
-                    displayTitle = "Nationalities",
+                    displayTitle = "Nacionalidad(es)",
                     path = ClaimPathDomain.ofPlainKeys(
                         names = listOf("nationalities"),
                         type = ClaimType.SdJwtVc,
@@ -1242,7 +1273,7 @@ class TestDocumentHelper {
             listOf<ClaimDomain>(
                 ClaimDomain.Group(
                     key = "place_of_birth",
-                    displayTitle = "Place of birth",
+                    displayTitle = "Lugar de nacimiento",
                     path = mockedMdocPidUiGroupPath,
                     items = listOf(
                         ClaimDomain.Primitive(
@@ -1319,7 +1350,7 @@ class TestDocumentHelper {
         // Then
         val expectedFirstEntryGroup = ClaimDomain.Group(
             key = "driving_privileges-1",
-            displayTitle = "Driving Privileges 1",
+            displayTitle = "Categorías de conducción 1",
             path = mockedMdlUiGroupPath,
             items = listOf(
                 ClaimDomain.Group(
@@ -1389,7 +1420,7 @@ class TestDocumentHelper {
         )
         val expectedSecondEntryGroup = ClaimDomain.Group(
             key = "driving_privileges-2",
-            displayTitle = "Driving Privileges 2",
+            displayTitle = "Categorías de conducción 2",
             path = mockedMdlUiGroupPath,
             items = listOf(
                 ClaimDomain.Group(
@@ -1447,7 +1478,7 @@ class TestDocumentHelper {
             listOf<ClaimDomain>(
                 ClaimDomain.Group(
                     key = "driving_privileges",
-                    displayTitle = "Driving Privileges",
+                    displayTitle = "Categorías de conducción",
                     path = mockedMdlUiGroupPath,
                     items = listOf(
                         expectedFirstEntryGroup,

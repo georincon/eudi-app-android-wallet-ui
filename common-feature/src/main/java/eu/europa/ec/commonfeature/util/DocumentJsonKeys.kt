@@ -29,4 +29,15 @@ object DocumentJsonKeys {
 
     val GENDER_KEYS: List<String> = listOf(GENDER, SEX)
     val BASE64_USER_IMAGE_KEYS: List<String> = listOf(PORTRAIT, PICTURE)
+
+    /**
+     * SD-JWT/JOSE envelope claims (issued-at, not-before, JWT expiration, ...). These are
+     * protocol-level metadata carried by every SD-JWT VC, not PID/mDL business attributes — they
+     * have no issuer-provided display metadata, render as raw unix timestamps, and are never
+     * individually disclosable, so they are excluded from every claim tree the app renders
+     * (document details, issuance offer, presentation request).
+     */
+    val TECHNICAL_CLAIM_KEYS: Set<String> = setOf(
+        "iat", "nbf", "exp", "iss", "sub", "jti", "cnf", "vct", "status", "_sd", "_sd_alg",
+    )
 }

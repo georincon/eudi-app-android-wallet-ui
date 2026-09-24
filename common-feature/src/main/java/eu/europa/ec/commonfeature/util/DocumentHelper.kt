@@ -28,6 +28,7 @@ import eu.europa.ec.corelogic.extension.sortRecursivelyBy
 import eu.europa.ec.corelogic.extension.toClaimPathSegment
 import eu.europa.ec.corelogic.model.ClaimDomain
 import eu.europa.ec.corelogic.model.ClaimPathDomain
+import eu.europa.ec.corelogic.model.ClaimPathSegment
 import eu.europa.ec.corelogic.model.ClaimType
 import eu.europa.ec.eudi.wallet.document.IssuedDocument
 import eu.europa.ec.eudi.wallet.document.format.DocumentClaim
@@ -94,11 +95,79 @@ private fun getGenderValue(value: String, resourceProvider: ResourceProvider): S
         }
     }
 
+/**
+ * Local Spanish translations for well-known PID/mDL claim identifiers.
+ *
+ * The credential issuer only supplies an "en" locale entry in its claim display
+ * metadata, so [eu.europa.ec.corelogic.extension.getLocalizedClaimName] can never
+ * match the device's Spanish locale and silently falls back to that English text.
+ * This table is checked first so known claims are always shown in Spanish; claims
+ * not present here (e.g. from other issuers/document types) keep falling back to
+ * whatever the issuer metadata provides.
+ */
+private val LOCAL_CLAIM_LABELS: Map<String, Int> = mapOf(
+    DocumentJsonKeys.LAST_NAME to R.string.document_claim_family_name,
+    DocumentJsonKeys.FIRST_NAME to R.string.document_claim_given_name,
+    "birth_family_name" to R.string.document_claim_birth_family_name,
+    "birth_given_name" to R.string.document_claim_birth_given_name,
+    "birth_date" to R.string.document_claim_birth_date,
+    "birthdate" to R.string.document_claim_birthdate,
+    "age_over_18" to R.string.document_claim_age_over_18,
+    "age_in_years" to R.string.document_claim_age_in_years,
+    "age_birth_year" to R.string.document_claim_age_birth_year,
+    "age_over_65" to R.string.document_claim_age_over_65,
+    "birth_place" to R.string.document_claim_place_of_birth,
+    "birth_city" to R.string.document_claim_birth_city,
+    "nationality" to R.string.document_claim_nationality,
+    "nationalities" to R.string.document_claim_nationalities,
+    "gender" to R.string.document_claim_gender,
+    "sex" to R.string.document_claim_sex,
+    DocumentJsonKeys.PORTRAIT to R.string.document_claim_portrait,
+    DocumentJsonKeys.PICTURE to R.string.document_claim_picture,
+    DocumentJsonKeys.SIGNATURE to R.string.document_claim_signature_usual_mark,
+    "place_of_birth" to R.string.document_claim_place_of_birth,
+    "locality" to R.string.document_claim_locality,
+    "region" to R.string.document_claim_region,
+    "country" to R.string.document_claim_country,
+    "address" to R.string.document_claim_address,
+    "street_address" to R.string.document_claim_street_address,
+    "formatted" to R.string.document_claim_formatted,
+    "postal_code" to R.string.document_claim_postal_code,
+    "resident_address" to R.string.document_claim_resident_address,
+    "resident_country" to R.string.document_claim_resident_country,
+    "resident_state" to R.string.document_claim_resident_state,
+    "resident_city" to R.string.document_claim_resident_city,
+    "resident_postal_code" to R.string.document_claim_resident_postal_code,
+    "resident_street" to R.string.document_claim_resident_street,
+    "resident_house_number" to R.string.document_claim_resident_house_number,
+    "document_number" to R.string.document_claim_document_number,
+    "administrative_number" to R.string.document_claim_administrative_number,
+    "personal_administrative_number" to R.string.document_claim_personal_administrative_number,
+    "issuing_country" to R.string.document_claim_issuing_country,
+    "issuing_authority" to R.string.document_claim_issuing_authority,
+    "issuing_jurisdiction" to R.string.document_claim_issuing_jurisdiction,
+    "issuance_date" to R.string.document_claim_issuance_date,
+    "date_of_issuance" to R.string.document_claim_issuance_date,
+    DocumentJsonKeys.EXPIRY_DATE to R.string.document_claim_expiry_date,
+    "date_of_expiry" to R.string.document_claim_expiry_date,
+    "email_address" to R.string.document_claim_email_address,
+    "email" to R.string.document_claim_email,
+    "phone_number" to R.string.document_claim_phone_number,
+    "driving_privileges" to R.string.document_claim_driving_privileges,
+    "un_distinguishing_sign" to R.string.document_claim_un_distinguishing_sign,
+    DocumentJsonKeys.USER_PSEUDONYM to R.string.document_claim_user_pseudonym,
+    "attestation_legal_category" to R.string.document_claim_attestation_legal_category,
+)
+
 fun getReadableNameFromIdentifier(
     claimMetaData: IssuerMetadata.Claim?,
     userLocale: Locale,
     fallback: String,
+    resourceProvider: ResourceProvider,
 ): String {
+    LOCAL_CLAIM_LABELS[fallback]?.let { resId ->
+        return resourceProvider.getString(resId)
+    }
     return claimMetaData
         ?.display.getLocalizedClaimName(
             userLocale = userLocale,
@@ -184,7 +253,8 @@ fun createKeyValue(
                 displayTitle = getReadableNameFromIdentifier(
                     claimMetaData = claimMetaData,
                     userLocale = resourceProvider.getLocale(),
-                    fallback = groupKey
+                    fallback = groupKey,
+                    resourceProvider = resourceProvider,
                 )
             ) {
                 childKeys.none { it.isEmpty() }
@@ -230,7 +300,8 @@ fun createKeyValue(
                                     getReadableNameFromIdentifier(
                                         claimMetaData = claimMetaData,
                                         userLocale = resourceProvider.getLocale(),
-                                        fallback = groupKey
+                                        fallback = groupKey,
+                                        resourceProvider = resourceProvider,
                                     )
                                 } $position",
                                 // UUID-only path for a UI sub-group; never matched against a
@@ -255,7 +326,8 @@ fun createKeyValue(
                 displayTitle = getReadableNameFromIdentifier(
                     claimMetaData = claimMetaData,
                     userLocale = resourceProvider.getLocale(),
-                    fallback = groupKey
+                    fallback = groupKey,
+                    resourceProvider = resourceProvider,
                 )
             ) {
                 childKey.isEmpty()
@@ -291,7 +363,8 @@ fun createKeyValue(
                         getReadableNameFromIdentifier(
                             claimMetaData = claimMetaData,
                             userLocale = resourceProvider.getLocale(),
-                            fallback = groupKey
+                            fallback = groupKey,
+                            resourceProvider = resourceProvider,
                         )
                     },
                     path = disclosurePath,
@@ -407,7 +480,8 @@ private fun insertPath(
                 displayTitle = getReadableNameFromIdentifier(
                     claimMetaData = currentClaim?.issuerMetadata,
                     userLocale = userLocale,
-                    fallback = currentClaim?.identifierString ?: keyString
+                    fallback = currentClaim?.identifierString ?: keyString,
+                    resourceProvider = resourceProvider,
                 ),
                 path = ClaimPathDomain(
                     segments = disclosurePath.segments.take((disclosurePath.segments.size - path.segments.size) + 1),
@@ -439,6 +513,11 @@ private fun insertPath(
     }
 }
 
+private fun ClaimPathDomain.isTechnicalClaim(): Boolean {
+    val root = segments.firstOrNull() as? ClaimPathSegment.Key ?: return false
+    return root.name in DocumentJsonKeys.TECHNICAL_CLAIM_KEYS
+}
+
 // Function to build the tree from a list of paths
 fun transformPathsToDomainClaims(
     paths: List<ClaimPathDomain>,
@@ -446,16 +525,17 @@ fun transformPathsToDomainClaims(
     resourceProvider: ResourceProvider,
     uuidProvider: UuidProvider
 ): List<ClaimDomain> {
-    return paths.fold<ClaimPathDomain, List<ClaimDomain>>(initial = emptyList()) { acc, path ->
-        insertPath(
-            tree = acc,
-            path = path,
-            disclosurePath = path,
-            claims = claims,
-            resourceProvider = resourceProvider,
-            uuidProvider = uuidProvider
-        )
-    }.removeEmptyGroups()
+    return paths.filterNot { it.isTechnicalClaim() }
+        .fold<ClaimPathDomain, List<ClaimDomain>>(initial = emptyList()) { acc, path ->
+            insertPath(
+                tree = acc,
+                path = path,
+                disclosurePath = path,
+                claims = claims,
+                resourceProvider = resourceProvider,
+                uuidProvider = uuidProvider
+            )
+        }.removeEmptyGroups()
         .sortRecursivelyBy {
             it.displayTitle.lowercase()
         }

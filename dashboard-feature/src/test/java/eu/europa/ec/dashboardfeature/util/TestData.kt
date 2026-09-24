@@ -65,7 +65,7 @@ internal val mockedBasicPidDomain = DocumentDetailsDomain(
         ClaimDomain.Primitive(
             key = "family_name",
             value = "ANDERSSON",
-            displayTitle = "family_name",
+            displayTitle = "Apellido(s)",
             path = ClaimPathDomain.ofPlainKeys(
                 names = listOf("family_name"),
                 type = ClaimType.MsoMdoc(namespace = mockedMdocPidNameSpace)
@@ -75,7 +75,7 @@ internal val mockedBasicPidDomain = DocumentDetailsDomain(
         ClaimDomain.Primitive(
             key = "given_name",
             value = "JAN",
-            displayTitle = "given_name",
+            displayTitle = "Nombre(s)",
             path = ClaimPathDomain.ofPlainKeys(
                 names = listOf("given_name"),
                 type = ClaimType.MsoMdoc(namespace = mockedMdocPidNameSpace)
@@ -85,7 +85,7 @@ internal val mockedBasicPidDomain = DocumentDetailsDomain(
         ClaimDomain.Primitive(
             key = "age_over_18",
             value = "yes",
-            displayTitle = "age_over_18",
+            displayTitle = "Mayor de 18 años",
             path = ClaimPathDomain.ofPlainKeys(
                 names = listOf("age_over_18"),
                 type = ClaimType.MsoMdoc(namespace = mockedMdocPidNameSpace)
@@ -95,7 +95,7 @@ internal val mockedBasicPidDomain = DocumentDetailsDomain(
         ClaimDomain.Primitive(
             key = "age_over_65",
             value = "no",
-            displayTitle = "age_over_65",
+            displayTitle = "Mayor de 65 años",
             path = ClaimPathDomain.ofPlainKeys(
                 names = listOf("age_over_65"),
                 type = ClaimType.MsoMdoc(namespace = mockedMdocPidNameSpace)
@@ -105,7 +105,7 @@ internal val mockedBasicPidDomain = DocumentDetailsDomain(
         ClaimDomain.Primitive(
             key = "age_birth_year",
             value = "1985",
-            displayTitle = "age_birth_year",
+            displayTitle = "Año de nacimiento",
             path = ClaimPathDomain.ofPlainKeys(
                 names = listOf("age_birth_year"),
                 type = ClaimType.MsoMdoc(namespace = mockedMdocPidNameSpace)
@@ -115,7 +115,7 @@ internal val mockedBasicPidDomain = DocumentDetailsDomain(
         ClaimDomain.Primitive(
             key = "birth_city",
             value = "KATRINEHOLM",
-            displayTitle = "birth_city",
+            displayTitle = "Ciudad de nacimiento",
             path = ClaimPathDomain.ofPlainKeys(
                 names = listOf("birth_city"),
                 type = ClaimType.MsoMdoc(namespace = mockedMdocPidNameSpace)
@@ -125,7 +125,7 @@ internal val mockedBasicPidDomain = DocumentDetailsDomain(
         ClaimDomain.Primitive(
             key = "gender",
             value = "Male",
-            displayTitle = "gender",
+            displayTitle = "Sexo",
             path = ClaimPathDomain.ofPlainKeys(
                 names = listOf("gender"),
                 type = ClaimType.MsoMdoc(namespace = mockedMdocPidNameSpace)
@@ -135,7 +135,7 @@ internal val mockedBasicPidDomain = DocumentDetailsDomain(
         ClaimDomain.Primitive(
             key = "expiry_date",
             value = "30 Mar 2050",
-            displayTitle = "expiry_date",
+            displayTitle = "Fecha de caducidad",
             path = ClaimPathDomain.ofPlainKeys(
                 names = listOf("expiry_date"),
                 type = ClaimType.MsoMdoc(namespace = mockedMdocPidNameSpace)
@@ -224,7 +224,7 @@ internal val mockedBasicMdlDomain = DocumentDetailsDomain(
         ClaimDomain.Primitive(
             key = "family_name",
             value = "ANDERSSON",
-            displayTitle = "family_name",
+            displayTitle = "Apellido(s)",
             path = ClaimPathDomain.ofPlainKeys(
                 names = listOf("family_name"),
                 type = ClaimType.MsoMdoc(namespace = mockedMdocMdlNameSpace)
@@ -234,7 +234,7 @@ internal val mockedBasicMdlDomain = DocumentDetailsDomain(
         ClaimDomain.Primitive(
             key = "given_name",
             value = "JAN",
-            displayTitle = "given_name",
+            displayTitle = "Nombre(s)",
             path = ClaimPathDomain.ofPlainKeys(
                 names = listOf("given_name"),
                 type = ClaimType.MsoMdoc(namespace = mockedMdocMdlNameSpace)
@@ -244,7 +244,7 @@ internal val mockedBasicMdlDomain = DocumentDetailsDomain(
         ClaimDomain.Primitive(
             key = "birth_place",
             value = "SWEDEN",
-            displayTitle = "birth_place",
+            displayTitle = "Lugar de nacimiento",
             path = ClaimPathDomain.ofPlainKeys(
                 names = listOf("birth_place"),
                 type = ClaimType.MsoMdoc(namespace = mockedMdocMdlNameSpace)
@@ -254,7 +254,7 @@ internal val mockedBasicMdlDomain = DocumentDetailsDomain(
         ClaimDomain.Primitive(
             key = "expiry_date",
             value = "30 Mar 2050",
-            displayTitle = "expiry_date",
+            displayTitle = "Fecha de caducidad",
             path = ClaimPathDomain.ofPlainKeys(
                 names = listOf("expiry_date"),
                 type = ClaimType.MsoMdoc(namespace = mockedMdocMdlNameSpace)
@@ -264,7 +264,7 @@ internal val mockedBasicMdlDomain = DocumentDetailsDomain(
         ClaimDomain.Primitive(
             key = "portrait",
             value = "SE",
-            displayTitle = "portrait",
+            displayTitle = "Retrato",
             path = ClaimPathDomain.ofPlainKeys(
                 names = listOf("portrait"),
                 type = ClaimType.MsoMdoc(namespace = mockedMdocMdlNameSpace)
@@ -274,7 +274,7 @@ internal val mockedBasicMdlDomain = DocumentDetailsDomain(
         ClaimDomain.Primitive(
             key = "signature_usual_mark",
             value = "SE",
-            displayTitle = "signature_usual_mark",
+            displayTitle = "Firma habitual",
             path = ClaimPathDomain.ofPlainKeys(
                 names = listOf("signature_usual_mark"),
                 type = ClaimType.MsoMdoc(namespace = mockedMdocMdlNameSpace)
@@ -284,7 +284,7 @@ internal val mockedBasicMdlDomain = DocumentDetailsDomain(
         ClaimDomain.Primitive(
             key = "sex",
             value = "Male",
-            displayTitle = "sex",
+            displayTitle = "Sexo",
             path = ClaimPathDomain.ofPlainKeys(
                 names = listOf("sex"),
                 type = ClaimType.MsoMdoc(namespace = mockedMdocMdlNameSpace)

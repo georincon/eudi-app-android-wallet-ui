@@ -40,7 +40,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "eu.europa.ec.euidi"
+        applicationId = "co.org.avance.wallet"
         versionCode = 1
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"

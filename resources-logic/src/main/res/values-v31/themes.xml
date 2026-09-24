@@ -17,7 +17,12 @@
 <resources>
     <!-- Application theme. -->
     <style name="Theme.EUDIWallet" parent="Theme.Base">
+        <item name="android:windowSplashScreenBackground">#F1F3F8</item>
         <item name="android:windowSplashScreenAnimatedIcon">@android:color/transparent</item>
         <item name="android:windowSplashScreenAnimationDuration">0</item>
+        <item name="android:statusBarColor">#F1F3F8</item>
+        <item name="android:navigationBarColor">#F1F3F8</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar">true</item>
     </style>
 </resources>

@@ -161,24 +161,17 @@ internal val mockedConfigNavigationTypePopToScreen = ConfigNavigation(
 )
 
 internal val mockedMdocPidClaims = listOf(
-    createMdocClaimListItem(mockedPidId, mockedMdocPidNameSpace, "age_birth_year", "1985"),
-    createMdocClaimListItem(mockedPidId, mockedMdocPidNameSpace, "age_over_18", "yes"),
-    createMdocClaimListItem(mockedPidId, mockedMdocPidNameSpace, "age_over_65", "no"),
-    createMdocClaimListItem(mockedPidId, mockedMdocPidNameSpace, "birth_city", "KATRINEHOLM"),
-    createMdocClaimListItem(mockedPidId, mockedMdocPidNameSpace, "expiry_date", "30 Mar 2050"),
-    createMdocClaimListItem(mockedPidId, mockedMdocPidNameSpace, "family_name", "ANDERSSON"),
-    createMdocClaimListItem(mockedPidId, mockedMdocPidNameSpace, "gender", "Male"),
-    createMdocClaimListItem(mockedPidId, mockedMdocPidNameSpace, "given_name", "JAN"),
+    createMdocClaimListItem(mockedPidId, mockedMdocPidNameSpace, "family_name", "ANDERSSON", "Apellido(s)"),
+    createMdocClaimListItem(mockedPidId, mockedMdocPidNameSpace, "age_birth_year", "1985", "Año de nacimiento"),
+    createMdocClaimListItem(mockedPidId, mockedMdocPidNameSpace, "birth_city", "KATRINEHOLM", "Ciudad de nacimiento"),
+    createMdocClaimListItem(mockedPidId, mockedMdocPidNameSpace, "expiry_date", "30 Mar 2050", "Fecha de caducidad"),
+    createMdocClaimListItem(mockedPidId, mockedMdocPidNameSpace, "age_over_18", "yes", "Mayor de 18 años"),
+    createMdocClaimListItem(mockedPidId, mockedMdocPidNameSpace, "age_over_65", "no", "Mayor de 65 años"),
+    createMdocClaimListItem(mockedPidId, mockedMdocPidNameSpace, "given_name", "JAN", "Nombre(s)"),
+    createMdocClaimListItem(mockedPidId, mockedMdocPidNameSpace, "gender", "Male", "Sexo"),
 )
 
 internal val mockedSdJwtPidClaims = listOf(
-    ExpandableListItemUi.SingleListItem(
-        header = ListItemDataUi(
-            itemId = sdJwtItemId(mockedSdJwtPidId, ClaimPathSegment.Key("age_birth_year")),
-            overlineText = "age_birth_year",
-            mainContentData = ListItemMainContentDataUi.Text("1985")
-        )
-    ),
     ExpandableListItemUi.NestedListItem(
         header = ListItemDataUi(
             itemId = sdJwtItemId(mockedSdJwtPidId, ClaimPathSegment.Key("age_equal_or_over")),
@@ -215,58 +208,61 @@ internal val mockedSdJwtPidClaims = listOf(
     ),
     ExpandableListItemUi.SingleListItem(
         header = ListItemDataUi(
-            itemId = sdJwtItemId(mockedSdJwtPidId, ClaimPathSegment.Key("birth_date")),
-            overlineText = "birth_date",
-            mainContentData = ListItemMainContentDataUi.Text("30 Mar 1985")
-        )
-    ),
-    ExpandableListItemUi.SingleListItem(
-        header = ListItemDataUi(
-            itemId = sdJwtItemId(mockedSdJwtPidId, ClaimPathSegment.Key("exp")),
-            overlineText = "exp",
-            mainContentData = ListItemMainContentDataUi.Text(text = "1755730800")
-        )
-    ),
-    ExpandableListItemUi.SingleListItem(
-        header = ListItemDataUi(
             itemId = sdJwtItemId(mockedSdJwtPidId, ClaimPathSegment.Key("family_name")),
-            overlineText = "family_name",
+            overlineText = "Apellido(s)",
             mainContentData = ListItemMainContentDataUi.Text("ANDERSSON")
         )
     ),
     ExpandableListItemUi.SingleListItem(
         header = ListItemDataUi(
-            itemId = sdJwtItemId(mockedSdJwtPidId, ClaimPathSegment.Key("given_name")),
-            overlineText = "given_name",
-            mainContentData = ListItemMainContentDataUi.Text("JAN")
-        )
-    ),
-    ExpandableListItemUi.SingleListItem(
-        header = ListItemDataUi(
-            itemId = sdJwtItemId(mockedSdJwtPidId, ClaimPathSegment.Key("iat")),
-            overlineText = "iat",
-            mainContentData = ListItemMainContentDataUi.Text(text = "1747954800")
-        )
-    ),
-    ExpandableListItemUi.SingleListItem(
-        header = ListItemDataUi(
             itemId = sdJwtItemId(mockedSdJwtPidId, ClaimPathSegment.Key("issuing_authority")),
-            overlineText = "issuing_authority",
+            overlineText = "Autoridad emisora",
             mainContentData = ListItemMainContentDataUi.Text(text = "Test PID issuer")
         )
     ),
     ExpandableListItemUi.SingleListItem(
         header = ListItemDataUi(
-            itemId = sdJwtItemId(mockedSdJwtPidId, ClaimPathSegment.Key("issuing_country")),
-            overlineText = "issuing_country",
-            mainContentData = ListItemMainContentDataUi.Text("FC")
+            itemId = sdJwtItemId(mockedSdJwtPidId, ClaimPathSegment.Key("age_birth_year")),
+            overlineText = "Año de nacimiento",
+            mainContentData = ListItemMainContentDataUi.Text("1985")
         )
+    ),
+    ExpandableListItemUi.SingleListItem(
+        header = ListItemDataUi(
+            itemId = sdJwtItemId(mockedSdJwtPidId, ClaimPathSegment.Key("birth_date")),
+            overlineText = "Fecha de nacimiento",
+            mainContentData = ListItemMainContentDataUi.Text("30 Mar 1985")
+        )
+    ),
+    ExpandableListItemUi.NestedListItem(
+        header = ListItemDataUi(
+            itemId = sdJwtItemId(mockedSdJwtPidId, ClaimPathSegment.Key("place_of_birth")),
+            overlineText = null,
+            mainContentData = ListItemMainContentDataUi.Text("Lugar de nacimiento"),
+            trailingContentData = ListItemTrailingContentDataUi.Icon(
+                iconData = AppIcons.KeyboardArrowDown
+            )
+        ),
+        nestedItems = listOf(
+            ExpandableListItemUi.SingleListItem(
+                header = ListItemDataUi(
+                    itemId = sdJwtItemId(
+                        mockedSdJwtPidId,
+                        ClaimPathSegment.Key("place_of_birth"),
+                        ClaimPathSegment.Key("locality"),
+                    ),
+                    overlineText = "Localidad",
+                    mainContentData = ListItemMainContentDataUi.Text("KATRINEHOLM")
+                )
+            )
+        ),
+        isExpanded = false
     ),
     ExpandableListItemUi.NestedListItem(
         header = ListItemDataUi(
             itemId = sdJwtItemId(mockedSdJwtPidId, ClaimPathSegment.Key("nationalities")),
             overlineText = null,
-            mainContentData = ListItemMainContentDataUi.Text("nationalities"),
+            mainContentData = ListItemMainContentDataUi.Text("Nacionalidad(es)"),
             trailingContentData = ListItemTrailingContentDataUi.Icon(
                 iconData = AppIcons.KeyboardArrowDown
             )
@@ -288,29 +284,19 @@ internal val mockedSdJwtPidClaims = listOf(
         ),
         isExpanded = false
     ),
-    ExpandableListItemUi.NestedListItem(
+    ExpandableListItemUi.SingleListItem(
         header = ListItemDataUi(
-            itemId = sdJwtItemId(mockedSdJwtPidId, ClaimPathSegment.Key("place_of_birth")),
-            overlineText = null,
-            mainContentData = ListItemMainContentDataUi.Text("place_of_birth"),
-            trailingContentData = ListItemTrailingContentDataUi.Icon(
-                iconData = AppIcons.KeyboardArrowDown
-            )
-        ),
-        nestedItems = listOf(
-            ExpandableListItemUi.SingleListItem(
-                header = ListItemDataUi(
-                    itemId = sdJwtItemId(
-                        mockedSdJwtPidId,
-                        ClaimPathSegment.Key("place_of_birth"),
-                        ClaimPathSegment.Key("locality"),
-                    ),
-                    overlineText = "locality",
-                    mainContentData = ListItemMainContentDataUi.Text("KATRINEHOLM")
-                )
-            )
-        ),
-        isExpanded = false
+            itemId = sdJwtItemId(mockedSdJwtPidId, ClaimPathSegment.Key("given_name")),
+            overlineText = "Nombre(s)",
+            mainContentData = ListItemMainContentDataUi.Text("JAN")
+        )
+    ),
+    ExpandableListItemUi.SingleListItem(
+        header = ListItemDataUi(
+            itemId = sdJwtItemId(mockedSdJwtPidId, ClaimPathSegment.Key("issuing_country")),
+            overlineText = "País emisor",
+            mainContentData = ListItemMainContentDataUi.Text("FC")
+        )
     ),
 )
 
@@ -318,7 +304,8 @@ private fun createMdocClaimListItem(
     docId: String,
     nameSpace: NameSpace,
     claimIdentifier: String,
-    value: String
+    value: String,
+    displayTitle: String = claimIdentifier,
 ): ExpandableListItemUi.SingleListItem {
     return ExpandableListItemUi.SingleListItem(
         header = ListItemDataUi(
@@ -330,7 +317,7 @@ private fun createMdocClaimListItem(
                     type = ClaimType.MsoMdoc(namespace = nameSpace)
                 ),
             ).encode(),
-            overlineText = claimIdentifier,
+            overlineText = displayTitle,
             mainContentData = ListItemMainContentDataUi.Text(value)
         )
     )

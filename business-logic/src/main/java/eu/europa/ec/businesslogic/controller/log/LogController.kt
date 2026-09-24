@@ -65,7 +65,7 @@ class LogControllerImpl(
         Timber.plant(Timber.DebugTree(), fileLoggerTree)
     }
 
-    private val tag: String = "EUDI Wallet ${configLogic.appFlavor}-${configLogic.appBuildType}"
+    private val tag: String = "Avance Wallet ${configLogic.appFlavor}-${configLogic.appBuildType}"
 
     override fun d(tag: String, message: () -> String) {
         Timber.tag(tag).d(message())

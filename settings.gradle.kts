@@ -44,7 +44,7 @@ plugins {
     id("org.gradle.toolchains.foojay-resolver-convention")
 }
 
-rootProject.name = "EUDI Wallet"
+rootProject.name = "Avance Wallet"
 include(":app")
 include(":business-logic")
 include(":ui-logic")

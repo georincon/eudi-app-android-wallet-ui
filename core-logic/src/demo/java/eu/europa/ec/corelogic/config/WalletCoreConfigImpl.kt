@@ -119,15 +119,10 @@ internal class WalletCoreConfigImpl(
                     }
 
                     configureIssuerTrust {
-                        policy { default(TrustPolicy.Action.ENFORCE) }
-                        requireSignedMetadata()
-                        configureIssuerRegistrationPolicy(
-                            if (isRegistrationCheckEnabled) {
-                                IssuerRegistrationPolicy.Enabled
-                            } else {
-                                IssuerRegistrationPolicy.Disabled
-                            }
-                        )
+                        // Local testing: do not block when the issuer chain is not on a LoTE
+                        policy { default(TrustPolicy.Action.INFORM) }
+                        ignoreSignedMetadata()
+                        configureIssuerRegistrationPolicy(IssuerRegistrationPolicy.Disabled)
                     }
 
                     configureDocumentStatusResolver {
@@ -157,6 +152,27 @@ internal class WalletCoreConfigImpl(
     override val issuersConfig: List<VciConfig>
         get() = listOf(
             VciConfig(
+                issuerUrl = "https://civica-desarrollo.avance.org.co/pid-issuer",
+                config = OpenId4VciManager.Config.Builder()
+                    .withClientAuthenticationType(
+                        OpenId4VciManager.ClientAuthenticationType.AttestationBased(clientId = "eudiw-abca")
+                    )
+                    .withAuthFlowRedirectionURI(BuildConfig.ISSUE_AUTHORIZATION_DEEPLINK)
+                    .withParUsage(OpenId4VciManager.Config.ParUsage.IF_SUPPORTED)
+                    .withDPopConfig(DPopConfig.Default)
+                    .withSupportedCredentialReusePolicies(
+                        CredentialReusePolicies.Supported(
+                            policyTypes = setOf(
+                                EudiReusePolicyType.RotatingBatch,
+                                EudiReusePolicyType.OnceOnly,
+                                EudiReusePolicyType.LimitedTime,
+                            )
+                        )
+                    )
+                    .build(),
+                order = 0
+            ),
+            VciConfig(
                 issuerUrl = "https://issuer.eudiw.dev",
                 config = OpenId4VciManager.Config.Builder()
                     .withClientAuthenticationType(
@@ -177,7 +193,7 @@ internal class WalletCoreConfigImpl(
                         )
                     )
                     .build(),
-                order = 0
+                order = 1
             ),
             VciConfig(
                 issuerUrl = "https://issuer-backend.eudiw.dev",
@@ -200,7 +216,7 @@ internal class WalletCoreConfigImpl(
                         )
                     )
                     .build(),
-                order = 1
+                order = 2
             )
         )
 

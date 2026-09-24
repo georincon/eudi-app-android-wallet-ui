@@ -136,7 +136,7 @@ class FileLoggerTree private constructor(
         const val DEFAULT_FILE_NAME = "log%g.txt"
         const val DEFAULT_SIZE_LIMIT = 1048576
         const val DEFAULT_FILE_LIMIT = 3
-        const val DEFAULT_TAG = "EUDI"
+        const val DEFAULT_TAG = "AvanceWallet"
     }
 }
 
