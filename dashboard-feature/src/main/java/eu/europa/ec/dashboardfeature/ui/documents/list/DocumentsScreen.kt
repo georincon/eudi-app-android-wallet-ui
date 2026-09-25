@@ -23,6 +23,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -33,6 +34,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -57,11 +59,13 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -72,6 +76,11 @@ import eu.europa.ec.corelogic.model.DocumentIdentifier
 import eu.europa.ec.corelogic.util.CoreActions
 import eu.europa.ec.dashboardfeature.model.SearchItemUi
 import eu.europa.ec.dashboardfeature.ui.component.BottomNavigationItem
+import eu.europa.ec.dashboardfeature.ui.component.CredentialCard
+import eu.europa.ec.dashboardfeature.ui.component.CredentialStack
+import eu.europa.ec.dashboardfeature.ui.component.FALLBACK_USER_INITIALS
+import eu.europa.ec.dashboardfeature.ui.component.HeaderCard
+import eu.europa.ec.dashboardfeature.ui.component.UserAvatar
 import eu.europa.ec.dashboardfeature.ui.documents.detail.model.DocumentIssuanceStateUi
 import eu.europa.ec.dashboardfeature.ui.documents.list.model.DocumentUi
 import eu.europa.ec.dashboardfeature.util.TestTag
@@ -79,11 +88,11 @@ import eu.europa.ec.resourceslogic.R
 import eu.europa.ec.uilogic.component.AppIcons
 import eu.europa.ec.uilogic.component.FiltersSearchBar
 import eu.europa.ec.uilogic.component.InlineSnackbar
+import eu.europa.ec.uilogic.component.IconDataUi
 import eu.europa.ec.uilogic.component.ListItemDataUi
 import eu.europa.ec.uilogic.component.ListItemMainContentDataUi
 import eu.europa.ec.uilogic.component.ListItemSupportingContentDataUi
 import eu.europa.ec.uilogic.component.ModalOptionUi
-import eu.europa.ec.uilogic.component.SectionTitle
 import eu.europa.ec.uilogic.component.content.BroadcastAction
 import eu.europa.ec.uilogic.component.content.ContentScreen
 import eu.europa.ec.uilogic.component.content.ScreenNavigateAction
@@ -111,7 +120,6 @@ import eu.europa.ec.uilogic.component.wrap.WrapFabDefaults
 import eu.europa.ec.uilogic.component.wrap.WrapIcon
 import eu.europa.ec.uilogic.component.wrap.WrapIconButton
 import eu.europa.ec.uilogic.component.wrap.WrapListItem
-import eu.europa.ec.uilogic.component.wrap.WrapListItemDefaults
 import eu.europa.ec.uilogic.component.wrap.WrapModalBottomSheet
 import eu.europa.ec.uilogic.component.wrap.WrapPrimaryExtendedFab
 import eu.europa.ec.uilogic.extension.applyTestTag
@@ -150,6 +158,7 @@ fun DocumentsScreen(
 
     val listScrollState = rememberLazyListState()
     var fabVisible by rememberSaveable { mutableStateOf(false) }
+    var isExtendedView by rememberSaveable { mutableStateOf(true) }
 
     LifecycleEffect(
         lifecycleOwner = LocalLifecycleOwner.current,
@@ -172,7 +181,7 @@ fun DocumentsScreen(
         contentErrorConfig = null,
         topBar = {
             TopBar(
-                onDashboardEventSent = onDashboardEventSent
+                onDashboardEventSent = onDashboardEventSent,
             )
         },
         fab = {
@@ -211,7 +220,11 @@ fun DocumentsScreen(
             scrollState = listScrollState,
             paddingValues = paddingValues,
             coroutineScope = scope,
-            modalBottomSheetState = bottomSheetState
+            modalBottomSheetState = bottomSheetState,
+            isExtendedView = isExtendedView,
+            onSearchQueryChanged = { viewModel.setEvent(Event.OnSearchQueryChanged(it)) },
+            onFilterClick = { viewModel.setEvent(Event.FiltersPressed) },
+            onViewModeChange = { isExtendedView = it },
         )
 
         if (isBottomSheetOpen) {
@@ -297,27 +310,66 @@ private fun handleNavigationEffect(
 private fun TopBar(
     onDashboardEventSent: (DashboardEvent) -> Unit,
 ) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(
-                all = SPACING_SMALL.dp
-            )
-    ) {
-        WrapIconButton(
-            modifier = Modifier.align(Alignment.CenterStart),
-            iconData = AppIcons.Menu,
-            customTint = MaterialTheme.colorScheme.onSurface,
+    HeaderCard {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(SPACING_MEDIUM.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            onDashboardEventSent(OpenSideMenuEvent)
-        }
+            WrapIconButton(
+                iconData = AppIcons.Menu,
+                customTint = MaterialTheme.colorScheme.onSurface,
+            ) {
+                onDashboardEventSent(OpenSideMenuEvent)
+            }
 
-        Text(
-            modifier = Modifier.align(Alignment.Center),
-            textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.onSurface,
-            style = MaterialTheme.typography.headlineMedium,
-            text = stringResource(R.string.documents_screen_title)
+            HSpacer.Small()
+
+            UserAvatar(initials = FALLBACK_USER_INITIALS)
+
+            HSpacer.Small()
+
+            Text(
+                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.titleMedium,
+                text = stringResource(R.string.documents_screen_top_bar_title)
+            )
+        }
+    }
+}
+
+@Composable
+private fun SearchAndViewModeBar(
+    searchText: String,
+    isFilteringActive: Boolean,
+    onSearchQueryChanged: (String) -> Unit,
+    onFilterClick: () -> Unit,
+    isExtendedView: Boolean,
+    onViewModeChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.Start,
+    ) {
+        val searchItemUi =
+            SearchItemUi(searchLabel = stringResource(R.string.documents_screen_search_label))
+        FiltersSearchBar(
+            placeholder = searchItemUi.searchLabel,
+            onValueChange = onSearchQueryChanged,
+            onFilterClick = onFilterClick,
+            onClearClick = { onSearchQueryChanged("") },
+            isFilteringActive = isFilteringActive,
+            text = searchText
+        )
+
+        VSpacer.Medium()
+
+        CredentialViewModeToggle(
+            isExtendedView = isExtendedView,
+            onViewModeChange = onViewModeChange,
         )
     }
 }
@@ -333,6 +385,10 @@ private fun Content(
     paddingValues: PaddingValues,
     coroutineScope: CoroutineScope,
     modalBottomSheetState: SheetState,
+    isExtendedView: Boolean = true,
+    onSearchQueryChanged: (String) -> Unit = {},
+    onFilterClick: () -> Unit = {},
+    onViewModeChange: (Boolean) -> Unit = {},
 ) {
     Box(
         modifier = Modifier
@@ -342,20 +398,19 @@ private fun Content(
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             state = scrollState,
-            contentPadding = PaddingValues(bottom = SPACING_MEDIUM.dp),
+            contentPadding = PaddingValues(top = SPACING_MEDIUM.dp, bottom = SPACING_MEDIUM.dp),
         ) {
-            item {
-                val searchItemUi =
-                    SearchItemUi(searchLabel = stringResource(R.string.documents_screen_search_label))
-                FiltersSearchBar(
-                    placeholder = searchItemUi.searchLabel,
-                    onValueChange = { onEventSend(Event.OnSearchQueryChanged(it)) },
-                    onFilterClick = { onEventSend(Event.FiltersPressed) },
-                    onClearClick = { onEventSend(Event.OnSearchQueryChanged("")) },
+            item(key = "search-and-view-mode") {
+                SearchAndViewModeBar(
+                    modifier = Modifier.fillMaxWidth(),
+                    searchText = state.searchText,
                     isFilteringActive = state.isFilteringActive,
-                    text = state.searchText
+                    onSearchQueryChanged = onSearchQueryChanged,
+                    onFilterClick = onFilterClick,
+                    isExtendedView = isExtendedView,
+                    onViewModeChange = onViewModeChange,
                 )
-                VSpacer.Large()
+                VSpacer.Medium()
             }
 
             if (state.showNoResultsFound) {
@@ -368,6 +423,7 @@ private fun Content(
                         modifier = Modifier.fillMaxWidth(),
                         category = documentCategory,
                         documents = documents,
+                        isExtendedView = isExtendedView,
                         onEventSend = onEventSend
                     )
 
@@ -433,50 +489,116 @@ private fun Content(
     }
 }
 
+/**
+ * Segmented icon toggle between the extended (bank-card-style) and compact (short row)
+ * credential layouts, matching the reference wallet's "collapsed vs extended" view switch.
+ */
+@Composable
+private fun CredentialViewModeToggle(
+    isExtendedView: Boolean,
+    onViewModeChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier
+            .background(
+                color = MaterialTheme.colorScheme.surfaceContainerHighest,
+                shape = RoundedCornerShape(12.dp),
+            )
+            .padding(4.dp),
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+    ) {
+        ViewModeToggleButton(
+            iconData = AppIcons.ViewExtended,
+            selected = isExtendedView,
+            onClick = { onViewModeChange(true) },
+        )
+        ViewModeToggleButton(
+            iconData = AppIcons.ViewCompact,
+            selected = !isExtendedView,
+            onClick = { onViewModeChange(false) },
+        )
+    }
+}
+
+@Composable
+private fun ViewModeToggleButton(
+    iconData: IconDataUi,
+    selected: Boolean,
+    onClick: () -> Unit,
+) {
+    Box(
+        modifier = Modifier
+            .size(width = 40.dp, height = 32.dp)
+            .clip(RoundedCornerShape(9.dp))
+            .background(
+                color = if (selected) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    Color.Transparent
+                }
+            )
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center,
+    ) {
+        WrapIcon(
+            iconData = iconData,
+            customTint = if (selected) {
+                MaterialTheme.colorScheme.onPrimary
+            } else {
+                MaterialTheme.colorScheme.onSurfaceVariant
+            },
+            modifier = Modifier.size(16.dp),
+        )
+    }
+}
+
 @Composable
 private fun DocumentCategory(
     modifier: Modifier = Modifier,
     category: DocumentCategory,
     documents: List<DocumentUi>,
+    isExtendedView: Boolean,
     onEventSend: (Event) -> Unit,
 ) {
-    Column(
-        modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(SPACING_MEDIUM.dp)
-    ) {
-        SectionTitle(
-            modifier = Modifier.fillMaxWidth(),
-            text = stringResource(category.stringResId)
-        )
+    val categoryLabel = stringResource(category.stringResId)
 
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(WrapListItemDefaults.GroupedItemSpacing)
+    val onItemClick: (DocumentUi) -> Unit = { documentItem ->
+        val onItemClickEvent = if (
+            documentItem.documentIssuanceState == DocumentIssuanceStateUi.Pending
+            || documentItem.documentIssuanceState == DocumentIssuanceStateUi.Failed
         ) {
-            documents.forEachIndexed { index, documentItem: DocumentUi ->
-                WrapListItem(
+            Event.BottomSheet.DeferredDocument.DeferredNotReadyYet.DocumentSelected(
+                documentId = documentItem.uiData.itemId
+            )
+        } else {
+            Event.GoToDocumentDetails(documentItem.uiData.itemId)
+        }
+        onEventSend(onItemClickEvent)
+    }
+
+    if (isExtendedView) {
+        Column(
+            modifier = modifier,
+            verticalArrangement = Arrangement.spacedBy(SPACING_MEDIUM.dp)
+        ) {
+            documents.forEach { documentItem: DocumentUi ->
+                CredentialCard(
                     modifier = Modifier.fillMaxWidth(),
                     item = documentItem.uiData,
-                    onItemClick = {
-                        val onItemClickEvent = if (
-                            documentItem.documentIssuanceState == DocumentIssuanceStateUi.Pending
-                            || documentItem.documentIssuanceState == DocumentIssuanceStateUi.Failed
-                        ) {
-                            Event.BottomSheet.DeferredDocument.DeferredNotReadyYet.DocumentSelected(
-                                documentId = documentItem.uiData.itemId
-                            )
-                        } else {
-                            Event.GoToDocumentDetails(documentItem.uiData.itemId)
-                        }
-                        onEventSend(onItemClickEvent)
-                    },
-                    shape = WrapListItemDefaults.groupedShape(
-                        index = index,
-                        itemCount = documents.size
-                    ),
+                    documentIdentifier = documentItem.documentIdentifier,
+                    category = categoryLabel,
+                    onClick = { onItemClick(documentItem) },
                 )
             }
         }
+    } else {
+        CredentialStack(
+            modifier = modifier,
+            documents = documents,
+            category = categoryLabel,
+            onItemClick = onItemClick,
+        )
     }
 }
 
@@ -673,7 +795,7 @@ private fun DocumentsScreenPreview() {
             onBack = { },
             topBar = {
                 TopBar(
-                    onDashboardEventSent = {}
+                    onDashboardEventSent = {},
                 )
             },
         ) { paddingValues ->

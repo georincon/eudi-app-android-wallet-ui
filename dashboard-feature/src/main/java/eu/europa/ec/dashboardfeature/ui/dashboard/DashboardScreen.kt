@@ -93,7 +93,12 @@ internal fun DashboardScreen(
     )
 
     Scaffold(
-        bottomBar = { BottomNavigationBar(bottomNavigationController) }
+        bottomBar = {
+            BottomNavigationBar(
+                navController = bottomNavigationController,
+                onScanQrClick = { viewModel.setEvent(Event.GoToQrScan) },
+            )
+        }
     ) { padding ->
         val paddingValues = PaddingValues(
             bottom = padding.calculateBottomPadding()

@@ -50,7 +50,7 @@ data class State(
     val isBottomSheetOpen: Boolean = false,
     val sheetContent: HomeScreenBottomSheetContent = HomeScreenBottomSheetContent.Authenticate,
 
-    val welcomeUserMessage: String,
+    val userFirstName: String = "",
     val authenticateCardConfig: ActionCardConfig,
     val signCardConfig: ActionCardConfig,
 
@@ -128,11 +128,9 @@ class HomeViewModel(
     private val resourceProvider: ResourceProvider
 ) : MviViewModel<Event, State, Effect>() {
 
-    private val defaultWelcomeMessage = resourceProvider.getString(R.string.home_screen_welcome)
-
     override fun setInitialState(): State {
         return State(
-            welcomeUserMessage = defaultWelcomeMessage,
+            userFirstName = "",
             authenticateCardConfig = ActionCardConfig(
                 title = resourceProvider.getString(R.string.home_screen_authentication_card_title),
                 icon = AppIcons.IdCards,
@@ -354,7 +352,7 @@ class HomeViewModel(
     private fun getUserNameViaMainPidDocument() {
         setState {
             copy(
-                isLoading = welcomeUserMessage == defaultWelcomeMessage
+                isLoading = userFirstName.isBlank()
             )
         }
         viewModelScope.launch {
@@ -372,12 +370,7 @@ class HomeViewModel(
                         setState {
                             copy(
                                 isLoading = false,
-                                welcomeUserMessage = if (response.userFirstName.isNotBlank()) {
-                                    resourceProvider.getString(
-                                        R.string.home_screen_welcome_user_message,
-                                        response.userFirstName
-                                    )
-                                } else defaultWelcomeMessage
+                                userFirstName = response.userFirstName
                             )
                         }
                     }

@@ -28,7 +28,7 @@ class ThemeColors {
         private const val black: Long = 0xFF000000
 
         // Light theme base colors palette.
-        private const val eudiw_theme_light_primary: Long = 0xFF0465AB // Corporación Avance
+        private const val eudiw_theme_light_primary: Long = 0xFF3F3FB8 // Lissi-inspired indigo
         private const val eudiw_theme_light_onPrimary: Long = white
         private const val eudiw_theme_light_primaryContainer: Long = 0xFFEADDFF
         private const val eudiw_theme_light_onPrimaryContainer: Long = 0xFF21005D
@@ -90,7 +90,7 @@ class ThemeColors {
 
         // Dark theme base colors palette.
         // Dark palette kept light-pastel too, so any isSystemInDarkTheme() path never goes black.
-        private const val eudiw_theme_dark_primary: Long = 0xFF0465AB // Corporación Avance
+        private const val eudiw_theme_dark_primary: Long = 0xFF3F3FB8 // Lissi-inspired indigo
         private const val eudiw_theme_dark_onPrimary: Long = white
         private const val eudiw_theme_dark_primaryContainer: Long = 0xFFD6E8F7
         private const val eudiw_theme_dark_onPrimaryContainer: Long = 0xFF003A66

@@ -92,19 +92,16 @@ class TestSettingsInteractor {
 
     //region getAppVersion
     @Test
-    fun `Given an App Version, When getAppVersion is called, Then it returns the Apps Version`() {
+    fun `Given the device's current date, When getAppVersion is called, Then it returns that date formatted as yyyy_MM_dd`() {
         // Given
-        val expectedAppVersion = "2024.01.1"
-        whenever(configLogic.appVersion)
-            .thenReturn(expectedAppVersion)
+        val today = java.time.LocalDate.now()
+        val expectedAppVersion = "%d.%02d.%02d".format(today.year, today.monthValue, today.dayOfMonth)
 
         // When
         val actualAppVersion = interactor.getAppVersion()
 
         // Then
         assertEquals(expectedAppVersion, actualAppVersion)
-        verify(configLogic, times(1))
-            .appVersion
     }
     //endregion
 

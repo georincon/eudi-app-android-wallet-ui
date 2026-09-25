@@ -91,6 +91,8 @@
     <string name="content_description_authenticate_online_icon">Autenticar en línea</string>
     <string name="content_description_sign_document_from_device_icon">Firmar documento desde el dispositivo</string>
     <string name="content_description_sign_document_from_qr_icon">Firmar documento desde QR</string>
+    <string name="content_description_view_extended_icon">Vista de tarjeta extendida</string>
+    <string name="content_description_view_compact_icon">Vista de lista compacta</string>
 
     <string name="content_description_bookmark_icon">Favorito</string>
     <string name="content_description_bookmark_filled_icon">Favorito rellenado</string>
@@ -102,6 +104,7 @@
     <string name="content_description_in_progress_icon">En curso</string>
     <string name="content_description_notifications_icon">Notificaciones</string>
     <string name="content_description_transactions_icon">Historial</string>
+    <string name="content_description_connections_icon">Conexiones</string>
     <string name="content_description_wallet_activated_icon">Wallet activada</string>
     <string name="content_description_wallet_secured_icon">Wallet protegida</string>
     <string name="content_description_info_icon">Información</string>
@@ -254,6 +257,8 @@
     <string name="home_screen_title">Inicio</string>
     <string name="home_screen_welcome">Bienvenido</string>
     <string name="home_screen_welcome_user_message">Bienvenido, %1$s</string>
+    <string name="home_screen_generic_user_label">Usuario</string>
+    <string name="home_screen_add_credential_button">Add</string>
     <string name="home_screen_authentication_card_title">Autentícate, autoriza transacciones y comparte tus documentos digitales en persona o en línea.</string>
     <string name="home_screen_sign_card_title">Firma documentos electrónicos con tu wallet eligiendo un archivo de tu dispositivo.</string>
     <string name="home_screen_authenticate">Autenticar</string>
@@ -277,12 +282,13 @@
     <!--endregion-->
 
     <!-- region Pantalla de documentos -->
-    <string name="documents_screen_title">Documentos</string>
+    <string name="documents_screen_title">Credenciales</string>
+    <string name="documents_screen_top_bar_title">Mis Credenciales</string>
     <string name="documents_screen_search_label">@string/generic_search</string>
     <string name="documents_screen_search_no_results">Ningún documento coincide con tu búsqueda. Prueba a cambiar la consulta o los filtros.</string>
     <string name="documents_screen_add_document_title">Añadir documento</string>
     <string name="documents_screen_add_document_description">Añade documentos a tu wallet eligiendo de una lista o escaneando un código QR proporcionado.</string>
-    <string name="documents_screen_add_document_fab">Añadir documento</string>
+    <string name="documents_screen_add_document_fab">Añadir credencial</string>
     <string name="documents_screen_add_document_option_list">Desde la lista</string>
     <string name="documents_screen_add_document_option_qr">@string/generic_scan_qr</string>
     <string name="documents_screen_add_document_option_or">@string/generic_or</string>
@@ -305,8 +311,13 @@
     <string name="documents_screen_filters_unknown_issuer">@string/generic_unknown_issuer</string>
     <!--endregion-->
 
+    <!-- region Barra de navegación inferior -->
+    <string name="bottom_navigation_scan_qr_title">Escanear</string>
+    <!--endregion-->
+
     <!-- region Pantalla de historial -->
-    <string name="transactions_screen_title">Historial</string>
+    <string name="transactions_screen_title">Conexiones</string>
+    <string name="transactions_screen_top_bar_title">Mis Conexiones</string>
     <string name="transactions_screen_search_label">@string/generic_search</string>
     <string name="transactions_screen_search_no_results">No se encontraron transacciones. Prueba a cambiar la consulta o los filtros.</string>
     <string name="transactions_screen_0_minutes_ago_message">Justo ahora</string>

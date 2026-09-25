@@ -18,8 +18,11 @@ package eu.europa.ec.dashboardfeature.ui.dashboard
 
 import android.content.Intent
 import android.net.Uri
+import eu.europa.ec.commonfeature.config.IssuanceFlowType
 import eu.europa.ec.commonfeature.config.OfferUiConfig
 import eu.europa.ec.commonfeature.config.PresentationMode
+import eu.europa.ec.commonfeature.config.QrScanFlow
+import eu.europa.ec.commonfeature.config.QrScanUiConfig
 import eu.europa.ec.commonfeature.config.RequestUriConfig
 import eu.europa.ec.commonfeature.model.PinFlow
 import eu.europa.ec.corelogic.model.RevokedDocumentDataDomain
@@ -70,6 +73,8 @@ sealed class Event : ViewEvent {
     ) : Event()
 
     data object Pop : Event()
+
+    data object GoToQrScan : Event()
 
     data class DocumentRevocationNotificationReceived(
         val payload: List<RevokedDocumentDataDomain>
@@ -150,6 +155,8 @@ class DashboardViewModel(
 
             is Event.Pop -> setEffect { Effect.Navigation.Pop }
 
+            is Event.GoToQrScan -> goToQrScan()
+
             is Event.SideMenu.ItemClicked -> {
                 handleSideMenuItemClicked(event.itemType)
             }
@@ -205,6 +212,33 @@ class DashboardViewModel(
                         )
                     )
                 )
+            )
+        }
+    }
+
+    private fun goToQrScan() {
+        setEffect {
+            Effect.Navigation.SwitchScreen(
+                screenRoute = generateComposableNavigationLink(
+                    screen = CommonScreens.QrScan,
+                    arguments = generateComposableArguments(
+                        mapOf(
+                            QrScanUiConfig.serializedKeyName to uiSerializer.toBase64(
+                                QrScanUiConfig(
+                                    title = resourceProvider.getString(R.string.issuance_qr_scan_title),
+                                    subTitle = resourceProvider.getString(R.string.issuance_qr_scan_subtitle),
+                                    qrScanFlow = QrScanFlow.Issuance(
+                                        issuanceFlowType = IssuanceFlowType.ExtraDocument(
+                                            formatType = null
+                                        )
+                                    )
+                                ),
+                                QrScanUiConfig.Parser
+                            )
+                        )
+                    )
+                ),
+                inclusive = false
             )
         }
     }

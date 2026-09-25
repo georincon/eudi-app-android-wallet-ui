@@ -57,13 +57,15 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import eu.europa.ec.dashboardfeature.model.SearchItemUi
+import eu.europa.ec.dashboardfeature.ui.component.FALLBACK_USER_INITIALS
+import eu.europa.ec.dashboardfeature.ui.component.HeaderCard
+import eu.europa.ec.dashboardfeature.ui.component.UserAvatar
 import eu.europa.ec.dashboardfeature.ui.transactions.list.model.FilterDateRangeSelectionUi
 import eu.europa.ec.dashboardfeature.ui.transactions.list.model.TransactionCategoryUi
 import eu.europa.ec.dashboardfeature.ui.transactions.list.model.TransactionFilterIds
@@ -415,28 +417,33 @@ private fun NoResults(
 private fun TopBar(
     onDashboardEventSent: (DashboardEvent) -> Unit,
 ) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(
-                all = SPACING_SMALL.dp
-            )
-    ) {
-        WrapIconButton(
-            modifier = Modifier.align(Alignment.CenterStart),
-            iconData = AppIcons.Menu,
-            customTint = MaterialTheme.colorScheme.onSurface,
+    HeaderCard {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(SPACING_MEDIUM.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            onDashboardEventSent(OpenSideMenuEvent)
-        }
+            WrapIconButton(
+                iconData = AppIcons.Menu,
+                customTint = MaterialTheme.colorScheme.onSurface,
+            ) {
+                onDashboardEventSent(OpenSideMenuEvent)
+            }
 
-        Text(
-            modifier = Modifier.align(Alignment.Center),
-            textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.onSurface,
-            style = MaterialTheme.typography.headlineMedium,
-            text = stringResource(R.string.transactions_screen_title)
-        )
+            HSpacer.Small()
+
+            UserAvatar(initials = FALLBACK_USER_INITIALS)
+
+            HSpacer.Small()
+
+            Text(
+                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.titleMedium,
+                text = stringResource(R.string.transactions_screen_top_bar_title)
+            )
+        }
     }
 }
 

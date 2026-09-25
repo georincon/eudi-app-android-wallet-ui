@@ -170,6 +170,14 @@ enum class AppIconKey(
         resourceId = R.drawable.ic_qr_scanner,
         contentDescriptionId = R.string.content_description_qr_scanner_icon,
     ),
+    ViewExtended(
+        resourceId = R.drawable.ic_view_extended,
+        contentDescriptionId = R.string.content_description_view_extended_icon,
+    ),
+    ViewCompact(
+        resourceId = R.drawable.ic_view_compact,
+        contentDescriptionId = R.string.content_description_view_compact_icon,
+    ),
     Verified(
         resourceId = R.drawable.ic_verified,
         contentDescriptionId = R.string.content_description_verified_icon,
@@ -266,6 +274,10 @@ enum class AppIconKey(
         resourceId = R.drawable.ic_transactions,
         contentDescriptionId = R.string.content_description_transactions_icon,
     ),
+    Connections(
+        resourceId = R.drawable.ic_connections,
+        contentDescriptionId = R.string.content_description_connections_icon,
+    ),
     WalletActivated(
         resourceId = R.drawable.ic_wallet_activated,
         contentDescriptionId = R.string.content_description_wallet_activated_icon,
@@ -350,6 +362,8 @@ object AppIcons {
     val Edit: IconDataUi = IconDataUi(AppIconKey.Edit)
     val Sign: IconDataUi = IconDataUi(AppIconKey.Sign)
     val QrScanner: IconDataUi = IconDataUi(AppIconKey.QrScanner)
+    val ViewExtended: IconDataUi = IconDataUi(AppIconKey.ViewExtended)
+    val ViewCompact: IconDataUi = IconDataUi(AppIconKey.ViewCompact)
     val Verified: IconDataUi = IconDataUi(AppIconKey.Verified)
     val Message: IconDataUi = IconDataUi(AppIconKey.Message)
     val ClockTimer: IconDataUi = IconDataUi(AppIconKey.ClockTimer)
@@ -374,6 +388,7 @@ object AppIcons {
     val InProgress: IconDataUi = IconDataUi(AppIconKey.InProgress)
     val Notifications: IconDataUi = IconDataUi(AppIconKey.Notifications)
     val Transactions: IconDataUi = IconDataUi(AppIconKey.Transactions)
+    val Connections: IconDataUi = IconDataUi(AppIconKey.Connections)
     val WalletActivated: IconDataUi = IconDataUi(AppIconKey.WalletActivated)
     val WalletSecured: IconDataUi = IconDataUi(AppIconKey.WalletSecured)
     val Info: IconDataUi = IconDataUi(AppIconKey.Info)

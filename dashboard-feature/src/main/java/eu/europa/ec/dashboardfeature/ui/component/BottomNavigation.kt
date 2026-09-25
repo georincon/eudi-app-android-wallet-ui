@@ -60,16 +60,28 @@ sealed class BottomNavigationItem(
     data object Transactions : BottomNavigationItem(
         route = "TRANSACTIONS",
         titleRes = R.string.transactions_screen_title,
-        icon = AppIcons.Transactions
+        icon = AppIcons.Connections
+    )
+
+    // Not part of the internal dashboard NavHost: tapping it launches the QR scan
+    // flow on the host NavController, so it is never shown as a selected/active tab.
+    data object ScanQr : BottomNavigationItem(
+        route = "SCAN_QR",
+        titleRes = R.string.bottom_navigation_scan_qr_title,
+        icon = AppIcons.QrScanner
     )
 }
 
 @Composable
-fun BottomNavigationBar(navController: NavController) {
+fun BottomNavigationBar(
+    navController: NavController,
+    onScanQrClick: () -> Unit,
+) {
     val navItems = listOf(
         BottomNavigationItem.Home,
         BottomNavigationItem.Documents,
         BottomNavigationItem.Transactions,
+        BottomNavigationItem.ScanQr,
     )
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -79,7 +91,8 @@ fun BottomNavigationBar(navController: NavController) {
         containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
     ) {
         navItems.forEach { screen ->
-            val selected = currentDestination?.hierarchy?.any {
+            val isScanQr = screen == BottomNavigationItem.ScanQr
+            val selected = !isScanQr && currentDestination?.hierarchy?.any {
                 it.route == screen.route
             } == true
 
@@ -103,7 +116,9 @@ fun BottomNavigationBar(navController: NavController) {
                     ),
                 selected = selected,
                 onClick = {
-                    if (!selected) {
+                    if (isScanQr) {
+                        onScanQrClick()
+                    } else if (!selected) {
                         navController.navigate(screen.route) {
                             popUpTo(navController.graph.findStartDestination().id) {
                                 saveState = true
@@ -122,6 +137,9 @@ fun BottomNavigationBar(navController: NavController) {
 @Composable
 private fun BottomNavigationBarPreview() {
     PreviewTheme {
-        BottomNavigationBar(rememberNavController())
+        BottomNavigationBar(
+            navController = rememberNavController(),
+            onScanQrClick = {},
+        )
     }
 }

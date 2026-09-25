@@ -17,7 +17,9 @@
 package eu.europa.ec.dashboardfeature.ui.documents.detail
 
 import android.content.Context
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -25,6 +27,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -37,6 +40,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -48,6 +55,7 @@ import androidx.navigation.NavController
 import eu.europa.ec.commonfeature.ui.issuance.IssuerNotTrustedSheetContent
 import eu.europa.ec.corelogic.model.DocumentIdentifier
 import eu.europa.ec.corelogic.util.CoreActions
+import eu.europa.ec.dashboardfeature.ui.component.toCredentialMetallicGradient
 import eu.europa.ec.dashboardfeature.ui.documents.detail.model.DocumentDetailsUi
 import eu.europa.ec.dashboardfeature.ui.documents.model.DocumentCredentialsInfoUi
 import eu.europa.ec.dashboardfeature.util.TestTag
@@ -70,6 +78,7 @@ import eu.europa.ec.uilogic.component.content.ToolbarConfig
 import eu.europa.ec.uilogic.component.preview.PreviewTheme
 import eu.europa.ec.uilogic.component.preview.ThemeModePreviews
 import eu.europa.ec.uilogic.component.utils.LifecycleEffect
+import eu.europa.ec.uilogic.component.utils.SIZE_SMALL
 import eu.europa.ec.uilogic.component.utils.SPACING_EXTRA_LARGE
 import eu.europa.ec.uilogic.component.utils.SPACING_LARGE
 import eu.europa.ec.uilogic.component.utils.SPACING_MEDIUM
@@ -314,6 +323,7 @@ private fun Content(
                     IssuerDetails(
                         modifier = Modifier.fillMaxWidth(),
                         data = safeIssuerDetails,
+                        documentIdentifier = safeDocumentDetailsUi.documentIdentifier,
                         onExpandedStateChanged = {
                             onEventSend(Event.IssuerDetails.OnExpandedStateChanged)
                         },
@@ -438,6 +448,7 @@ private fun SheetContent(
 private fun IssuerDetails(
     modifier: Modifier = Modifier,
     data: IssuerDetailsCardDataUi,
+    documentIdentifier: DocumentIdentifier,
     onExpandedStateChanged: () -> Unit,
     onActionButtonClick: () -> Unit,
 ) {
@@ -449,15 +460,32 @@ private fun IssuerDetails(
             modifier = Modifier.fillMaxWidth(),
             text = stringResource(R.string.document_details_issuer_section_text),
         )
-        IssuerDetailsCard(
-            modifier = Modifier.fillMaxWidth(),
-            data = data,
-            onExpandedChange = onExpandedStateChanged,
-            onActionButtonClick = onActionButtonClick,
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceDim,
-            ),
-        )
+
+        val (lightColor, darkColor) = documentIdentifier.toCredentialMetallicGradient()
+        val issuerCardShape = RoundedCornerShape(SIZE_SMALL.dp)
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(issuerCardShape)
+                .background(
+                    brush = Brush.linearGradient(
+                        colors = listOf(lightColor, darkColor),
+                        start = Offset.Zero,
+                        end = Offset.Infinite,
+                    )
+                )
+        ) {
+            IssuerDetailsCard(
+                modifier = Modifier.fillMaxWidth(),
+                data = data,
+                shape = issuerCardShape,
+                onExpandedChange = onExpandedStateChanged,
+                onActionButtonClick = onActionButtonClick,
+                colors = CardDefaults.cardColors(
+                    containerColor = Color.Transparent,
+                ),
+            )
+        }
     }
 }
 

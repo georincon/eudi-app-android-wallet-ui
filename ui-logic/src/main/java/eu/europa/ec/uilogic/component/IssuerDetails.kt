@@ -205,6 +205,7 @@ fun IssuerDetailsCard(
                                         R.string.document_details_issuer_card_expires_on_text,
                                         safeExpirationDate
                                     ),
+                                    textColorKey = ThemeColorKey.White,
                                 )
                             }
                         }
@@ -245,13 +246,15 @@ fun IssuerDetailsCard(
                         trailingContentData = ListItemTrailingContentDataUi.Icon(
                             iconData = if (data.isExpanded)
                                 AppIcons.KeyboardArrowUp
-                            else AppIcons.KeyboardArrowDown
+                            else AppIcons.KeyboardArrowDown,
+                            tint = ThemeColorKey.White,
                         )
                     ),
                     onItemClick = {
                         onExpandedChange()
                     },
                     mainContentVerticalPadding = SPACING_MEDIUM.dp,
+                    mainContentTextStyle = MaterialTheme.typography.bodyLarge.copy(color = Color.White),
                     colors = colors,
                 )
             },
@@ -315,7 +318,7 @@ private fun IssuerDetailsCardExpanded(
                     .weight(1f)
                     .padding(vertical = SPACING_EXTRA_SMALL.dp),
                 text = stringResource(data.expandedMessageTextResId),
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = Color.White.copy(alpha = 0.8f),
                 style = MaterialTheme.typography.bodySmall
             )
 
@@ -326,7 +329,7 @@ private fun IssuerDetailsCardExpanded(
                         onClick = onActionButtonClick,
                         buttonColors = ButtonDefaults.filledTonalButtonColors(
                             containerColor = Color.Transparent,
-                            contentColor = MaterialTheme.colorScheme.primary
+                            contentColor = Color.White
                         )
                     )
                 ) {
@@ -348,7 +351,7 @@ private fun IssuedOnText(
             issuanceDate
         ),
         modifier = modifier,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        color = Color.White.copy(alpha = 0.8f),
         style = MaterialTheme.typography.bodyMedium
     )
 }

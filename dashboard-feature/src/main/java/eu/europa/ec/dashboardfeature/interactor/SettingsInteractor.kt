@@ -52,7 +52,10 @@ class SettingsInteractorImpl(
 ) : SettingsInteractor,
     BiometricInteractor by biometricInteractor {
 
-    override fun getAppVersion(): String = configLogic.appVersion
+    override fun getAppVersion(): String {
+        val today = java.time.LocalDate.now()
+        return "%d.%02d.%02d".format(today.year, today.monthValue, today.dayOfMonth)
+    }
 
     override fun getChangelogUrl(): String? = configLogic.changelogUrl
 

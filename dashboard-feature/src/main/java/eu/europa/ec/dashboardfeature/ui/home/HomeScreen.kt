@@ -19,15 +19,19 @@ package eu.europa.ec.dashboardfeature.ui.home
 import android.Manifest
 import android.content.Context
 import android.os.Build
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -42,6 +46,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -49,9 +54,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
+import eu.europa.ec.dashboardfeature.ui.component.HeaderCard
+import eu.europa.ec.dashboardfeature.ui.component.UserBadge
 import eu.europa.ec.resourceslogic.R
-import eu.europa.ec.uilogic.component.AppIconAndText
-import eu.europa.ec.uilogic.component.AppIconAndTextDataUi
 import eu.europa.ec.uilogic.component.AppIcons
 import eu.europa.ec.uilogic.component.ModalOptionUi
 import eu.europa.ec.uilogic.component.content.ContentScreen
@@ -60,6 +65,7 @@ import eu.europa.ec.uilogic.component.preview.PreviewTheme
 import eu.europa.ec.uilogic.component.preview.ThemeModePreviews
 import eu.europa.ec.uilogic.component.utils.HSpacer
 import eu.europa.ec.uilogic.component.utils.LifecycleEffect
+import eu.europa.ec.uilogic.component.utils.SPACING_LARGE
 import eu.europa.ec.uilogic.component.utils.SPACING_MEDIUM
 import eu.europa.ec.uilogic.component.utils.SPACING_SMALL
 import eu.europa.ec.uilogic.component.wrap.ActionCardConfig
@@ -85,6 +91,7 @@ import kotlinx.coroutines.launch
 
 typealias DashboardEvent = eu.europa.ec.dashboardfeature.ui.dashboard.Event
 typealias OpenSideMenuEvent = eu.europa.ec.dashboardfeature.ui.dashboard.Event.SideMenu.Open
+typealias GoToQrScanEvent = eu.europa.ec.dashboardfeature.ui.dashboard.Event.GoToQrScan
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -107,6 +114,7 @@ fun HomeScreen(
         onBack = { context.finish() },
         topBar = {
             TopBar(
+                userFirstName = state.userFirstName,
                 onEventSent = onDashboardEventSent
             )
         }
@@ -154,28 +162,65 @@ fun HomeScreen(
 
 @Composable
 private fun TopBar(
+    userFirstName: String,
     onEventSent: (DashboardEvent) -> Unit
 ) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(
-                all = SPACING_SMALL.dp
-            )
-    ) {
-        // home menu icon
-        WrapIconButton(
-            modifier = Modifier.align(Alignment.CenterStart),
-            iconData = AppIcons.Menu,
-            customTint = MaterialTheme.colorScheme.onSurface,
+    HeaderCard {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(SPACING_MEDIUM.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            onEventSent(OpenSideMenuEvent)
-        }
+            // home menu icon
+            WrapIconButton(
+                iconData = AppIcons.Menu,
+                customTint = MaterialTheme.colorScheme.onSurface,
+            ) {
+                onEventSent(OpenSideMenuEvent)
+            }
 
-        // wallet logo
-        AppIconAndText(
-            modifier = Modifier.align(Alignment.Center),
-            appIconAndTextData = AppIconAndTextDataUi()
+            HSpacer.Small()
+
+            // user avatar (initial of the given name from the active PID) + given name
+            UserBadge(userFirstName = userFirstName)
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            // shortcut into the same "add credential via QR" flow as the bottom bar's Scan item
+            AddCredentialButton(
+                onClick = { onEventSent(GoToQrScanEvent) }
+            )
+        }
+    }
+}
+
+@Composable
+private fun AddCredentialButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier
+            .background(
+                color = MaterialTheme.colorScheme.primary,
+                shape = RoundedCornerShape(percent = 50),
+            )
+            .clickable(onClick = onClick)
+            .padding(horizontal = SPACING_MEDIUM.dp, vertical = SPACING_SMALL.dp),
+        horizontalArrangement = Arrangement.spacedBy(SPACING_SMALL.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        WrapIcon(
+            iconData = AppIcons.Add,
+            customTint = MaterialTheme.colorScheme.onPrimary,
+            modifier = Modifier.size(16.dp),
+        )
+        Text(
+            text = stringResource(R.string.home_screen_add_credential_button),
+            color = MaterialTheme.colorScheme.onPrimary,
+            fontWeight = FontWeight.Bold,
+            style = MaterialTheme.typography.labelLarge,
         )
     }
 }
@@ -197,16 +242,9 @@ private fun Content(
             .fillMaxSize()
             .paddingFrom(paddingValues, bottom = false)
             .verticalScroll(scrollState)
-            .padding(vertical = SPACING_MEDIUM.dp),
+            .padding(top = SPACING_LARGE.dp, bottom = SPACING_MEDIUM.dp),
         verticalArrangement = Arrangement.spacedBy(SPACING_MEDIUM.dp)
     ) {
-        Text(
-            text = state.welcomeUserMessage,
-            style = MaterialTheme.typography.headlineMedium.copy(
-                color = MaterialTheme.colorScheme.onSurface
-            )
-        )
-
         WrapActionCard(
             config = state.authenticateCardConfig,
             onActionClick = {
@@ -491,6 +529,7 @@ private fun HomeScreenContentPreview() {
             onBack = { },
             topBar = {
                 TopBar(
+                    userFirstName = "Alex",
                     onEventSent = {}
                 )
             }
@@ -498,7 +537,7 @@ private fun HomeScreenContentPreview() {
             Content(
                 state = State(
                     isBottomSheetOpen = false,
-                    welcomeUserMessage = "Welcome back, Alex",
+                    userFirstName = "Alex",
                     authenticateCardConfig = ActionCardConfig(
                         title = stringResource(R.string.home_screen_authentication_card_title),
                         icon = AppIcons.WalletActivated,
