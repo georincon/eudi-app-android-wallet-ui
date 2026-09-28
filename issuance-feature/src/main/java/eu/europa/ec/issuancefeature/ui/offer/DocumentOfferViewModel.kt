@@ -95,6 +95,7 @@ sealed class Event : ViewEvent {
         data class UpdateBottomSheetState(val isOpen: Boolean) : BottomSheet()
         data object FinishedClosing : BottomSheet()
         data object Close : BottomSheet()
+        data object DiscardDuplicateDocumentClicked : BottomSheet()
     }
 }
 
@@ -129,6 +130,21 @@ sealed class DocumentOfferBottomSheetContent {
 
     data class PartialSuccessWithUntrustedIssuer(
         val issuedDocumentIds: List<DocumentId>,
+    ) : DocumentOfferBottomSheetContent()
+
+    /**
+     * At least one of the just-issued [allDocumentIds] ([duplicateDocumentIds]) matches a
+     * document already in the wallet (same type, same "identity" claim — e.g. the same academic
+     * program). [discardRequested] tracks which action the user picked before the sheet finishes
+     * its closing animation (see [Event.BottomSheet.FinishedClosing]): false (the default, also
+     * reached by swiping the sheet away) keeps every new document, true deletes only the
+     * [duplicateDocumentIds] before continuing.
+     */
+    data class DuplicateDocumentDetected(
+        val allDocumentIds: List<DocumentId>,
+        val duplicateDocumentIds: List<DocumentId>,
+        val onSuccessNavigation: ConfigNavigation,
+        val discardRequested: Boolean = false,
     ) : DocumentOfferBottomSheetContent()
 }
 
@@ -263,10 +279,32 @@ class DocumentOfferViewModel(
                             onSuccessNavigation = viewState.value.offerUiConfig.onSuccessNavigation,
                         )
                     }
+
+                    is DocumentOfferBottomSheetContent.DuplicateDocumentDetected -> {
+                        if (content.discardRequested) {
+                            discardDuplicateDocuments(content)
+                        } else {
+                            goToDocumentIssuanceSuccessScreen(
+                                documentIds = content.allDocumentIds,
+                                onSuccessNavigation = content.onSuccessNavigation,
+                            )
+                        }
+                    }
                 }
             }
 
             is Event.BottomSheet.Close -> {
+                if (!viewState.value.bottomSheetClosingInProgress) {
+                    setState { copy(bottomSheetClosingInProgress = true) }
+                    hideBottomSheet()
+                }
+            }
+
+            is Event.BottomSheet.DiscardDuplicateDocumentClicked -> {
+                val content = viewState.value.sheetContent
+                if (content is DocumentOfferBottomSheetContent.DuplicateDocumentDetected) {
+                    setState { copy(sheetContent = content.copy(discardRequested = true)) }
+                }
                 if (!viewState.value.bottomSheetClosingInProgress) {
                     setState { copy(bottomSheetClosingInProgress = true) }
                     hideBottomSheet()
@@ -466,10 +504,23 @@ class DocumentOfferViewModel(
                             )
                         }
 
-                        goToDocumentIssuanceSuccessScreen(
-                            documentIds = response.documentIds,
-                            onSuccessNavigation = onSuccessNavigation,
-                        )
+                        val duplicateDocumentIds = documentOfferInteractor
+                            .findDuplicateDocumentIds(response.documentIds)
+
+                        if (duplicateDocumentIds.isNotEmpty()) {
+                            showBottomSheet(
+                                sheetContent = DocumentOfferBottomSheetContent.DuplicateDocumentDetected(
+                                    allDocumentIds = response.documentIds,
+                                    duplicateDocumentIds = duplicateDocumentIds,
+                                    onSuccessNavigation = onSuccessNavigation,
+                                )
+                            )
+                        } else {
+                            goToDocumentIssuanceSuccessScreen(
+                                documentIds = response.documentIds,
+                                onSuccessNavigation = onSuccessNavigation,
+                            )
+                        }
                     }
 
                     is IssueDocumentsInteractorPartialState.DeferredSuccess -> {
@@ -521,6 +572,31 @@ class DocumentOfferViewModel(
                     )
                 )
             )
+        }
+    }
+
+    /**
+     * Deletes only [DocumentOfferBottomSheetContent.DuplicateDocumentDetected.duplicateDocumentIds]
+     * (the newly-issued documents that turned out to already exist), then continues with whatever
+     * new documents remain — or cancels if every single one issued was a duplicate.
+     */
+    private fun discardDuplicateDocuments(content: DocumentOfferBottomSheetContent.DuplicateDocumentDetected) {
+        viewModelScope.launch {
+            content.duplicateDocumentIds.forEach { documentId ->
+                documentOfferInteractor.deleteDocument(documentId).collect { /* best-effort */ }
+            }
+
+            val remainingDocumentIds =
+                content.allDocumentIds - content.duplicateDocumentIds.toSet()
+
+            if (remainingDocumentIds.isEmpty()) {
+                doNavigation(viewState.value.offerUiConfig.onCancelNavigation)
+            } else {
+                goToDocumentIssuanceSuccessScreen(
+                    documentIds = remainingDocumentIds,
+                    onSuccessNavigation = content.onSuccessNavigation,
+                )
+            }
         }
     }
 

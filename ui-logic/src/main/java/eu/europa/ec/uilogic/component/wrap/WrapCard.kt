@@ -54,6 +54,25 @@ val shadowsAtElevation1: List<Shadow> = listOf(
     ),
 )
 
+/**
+ * More pronounced than [shadowsAtElevation1], used for containers that need to stand out more
+ * clearly from the content behind them, such as the app's top header bar.
+ */
+val shadowsAtElevation2: List<Shadow> = listOf(
+    Shadow(
+        radius = 8.dp,
+        color = Color.Black.copy(alpha = 0.20f),
+        spread = 1.dp,
+        offset = DpOffset(x = 0.dp, y = 3.dp),
+    ),
+    Shadow(
+        radius = 4.dp,
+        color = Color.Black.copy(alpha = 0.35f),
+        spread = 0.dp,
+        offset = DpOffset(x = 0.dp, y = 1.dp),
+    ),
+)
+
 @Composable
 fun WrapCard(
     modifier: Modifier = Modifier,

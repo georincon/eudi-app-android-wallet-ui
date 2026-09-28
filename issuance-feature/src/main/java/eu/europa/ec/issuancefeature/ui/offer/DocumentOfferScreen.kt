@@ -269,6 +269,17 @@ private fun SheetContent(
                 },
             )
         }
+
+        is DocumentOfferBottomSheetContent.DuplicateDocumentDetected -> {
+            DuplicateDocumentSheetContent(
+                onKeepAnyway = {
+                    onEventSent(Event.BottomSheet.Close)
+                },
+                onDiscardNew = {
+                    onEventSent(Event.BottomSheet.DiscardDuplicateDocumentClicked)
+                },
+            )
+        }
     }
 }
 

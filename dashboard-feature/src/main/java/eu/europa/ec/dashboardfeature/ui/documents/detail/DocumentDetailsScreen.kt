@@ -323,6 +323,7 @@ private fun Content(
                     IssuerDetails(
                         modifier = Modifier.fillMaxWidth(),
                         data = safeIssuerDetails,
+                        positionIndex = safeDocumentDetailsUi.positionIndex,
                         documentIdentifier = safeDocumentDetailsUi.documentIdentifier,
                         onExpandedStateChanged = {
                             onEventSend(Event.IssuerDetails.OnExpandedStateChanged)
@@ -448,6 +449,7 @@ private fun SheetContent(
 private fun IssuerDetails(
     modifier: Modifier = Modifier,
     data: IssuerDetailsCardDataUi,
+    positionIndex: Int,
     documentIdentifier: DocumentIdentifier,
     onExpandedStateChanged: () -> Unit,
     onActionButtonClick: () -> Unit,
@@ -461,7 +463,7 @@ private fun IssuerDetails(
             text = stringResource(R.string.document_details_issuer_section_text),
         )
 
-        val (lightColor, darkColor) = documentIdentifier.toCredentialMetallicGradient()
+        val (lightColor, darkColor) = documentIdentifier.toCredentialMetallicGradient(positionIndex)
         val issuerCardShape = RoundedCornerShape(SIZE_SMALL.dp)
         Box(
             modifier = Modifier
@@ -624,6 +626,7 @@ private fun DocumentDetailsScreenPreview() {
                         )
                     )
                 ),
+                positionIndex = 0,
             ),
             hideSensitiveContent = false,
             sheetContent = DocumentDetailsBottomSheetContent.DeleteDocumentConfirmation

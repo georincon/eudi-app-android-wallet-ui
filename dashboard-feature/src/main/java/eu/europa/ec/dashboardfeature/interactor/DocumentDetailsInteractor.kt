@@ -33,6 +33,7 @@ import eu.europa.ec.corelogic.extension.isExpired
 import eu.europa.ec.corelogic.extension.localizedIssuerMetadata
 import eu.europa.ec.corelogic.model.DocumentIdentifier
 import eu.europa.ec.corelogic.model.UntrustedIssuerReasonDomain
+import eu.europa.ec.corelogic.model.rankedByCategory
 import eu.europa.ec.corelogic.model.toDocumentIdentifier
 import eu.europa.ec.dashboardfeature.ui.documents.detail.model.DocumentDetailsDomain
 import eu.europa.ec.dashboardfeature.ui.documents.detail.transformer.DocumentDetailsTransformer
@@ -150,11 +151,16 @@ class DocumentDetailsInteractorImpl(
                         as? IssuedDocument
 
             issuedDocument?.let { safeIssuedDocument ->
+                val positionIndex = walletCoreDocumentsController.getAllDocuments()
+                    .rankedByCategory(walletCoreDocumentsController.getAllDocumentCategories())
+                    .indexOfFirst { it.id == documentId }
+
                 val documentDetailsDomainResult =
                     DocumentDetailsTransformer.transformToDocumentDetailsDomain(
                         document = safeIssuedDocument,
                         resourceProvider = resourceProvider,
-                        uuidProvider = uuidProvider
+                        uuidProvider = uuidProvider,
+                        positionIndex = positionIndex,
                     )
                 val documentDetailsDomain = documentDetailsDomainResult.getOrThrow()
 

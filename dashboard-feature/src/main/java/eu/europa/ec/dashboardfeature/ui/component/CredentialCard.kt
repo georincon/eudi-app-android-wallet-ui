@@ -58,25 +58,36 @@ import eu.europa.ec.uilogic.component.wrap.WrapIcon
 internal const val CREDENTIAL_CARD_ASPECT_RATIO = 1.6f
 private val CREDENTIAL_CARD_SHAPE = RoundedCornerShape(20.dp)
 private val CREDENTIAL_CARD_PADDING = 20.dp
+
+/**
+ * Smaller than [CREDENTIAL_CARD_PADDING] on purpose: when this card is only "peeking" behind
+ * another one in [CredentialStack], the visible strip is capped at a fixed height, so trimming
+ * the header's top inset (and see the title's [MaterialTheme.typography.titleSmall] style below)
+ * leaves enough room for the category/program-name line to stay inside that strip instead of
+ * being cut off by the card stacked on top of it.
+ */
+private val CREDENTIAL_CARD_HEADER_TOP_PADDING = 12.dp
 private val LEADING_LOGO_SIZE = 28.dp
 private val BADGE_SIZE = 24.dp
 
 /**
  * A large, bank-card-style credential tile: a diagonal metallic gradient background (lighter at
- * the top-left, darker at the bottom-right) fixed per credential type via
- * [toCredentialMetallicGradient], with white text/iconography on top, matching the wallet's
- * existing typography. Reads its content from the same [ListItemDataUi] already built for the
- * documents list so no new fields are needed on [eu.europa.ec.dashboardfeature.ui.documents.list.model.DocumentUi].
+ * the top-left, darker at the bottom-right) resolved via [toCredentialMetallicGradient] from the
+ * document's type and its [positionIndex] among all the user's documents, with white
+ * text/iconography on top, matching the wallet's existing typography. Reads its content from the
+ * same [ListItemDataUi] already built for the documents list so no new fields are needed on
+ * [eu.europa.ec.dashboardfeature.ui.documents.list.model.DocumentUi].
  */
 @Composable
 fun CredentialCard(
     item: ListItemDataUi,
     documentIdentifier: DocumentIdentifier,
     category: String,
+    positionIndex: Int,
     onClick: (() -> Unit)?,
     modifier: Modifier = Modifier,
 ) {
-    val (lightColor, darkColor) = documentIdentifier.toCredentialMetallicGradient()
+    val (lightColor, darkColor) = documentIdentifier.toCredentialMetallicGradient(positionIndex)
 
     Box(
         modifier = modifier
@@ -97,7 +108,12 @@ fun CredentialCard(
                     Modifier
                 }
             )
-            .padding(CREDENTIAL_CARD_PADDING)
+            .padding(
+                start = CREDENTIAL_CARD_PADDING,
+                end = CREDENTIAL_CARD_PADDING,
+                top = CREDENTIAL_CARD_HEADER_TOP_PADDING,
+                bottom = CREDENTIAL_CARD_PADDING,
+            )
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -129,13 +145,18 @@ fun CredentialCard(
                     else -> {}
                 }
 
-                val title = (item.mainContentData as? ListItemMainContentDataUi.Text)?.text.orEmpty()
+                // e.g. "Academic Credential (SD-JWT VC Compact)" -> the "(...)" part always
+                // starts its own line, instead of wrapping wherever it happens to run out of
+                // width.
+                val title = (item.mainContentData as? ListItemMainContentDataUi.Text)?.text
+                    .orEmpty()
+                    .replaceFirst(" (", "\n(")
                 Column {
                     Text(
                         text = title,
                         color = Color.White,
                         fontWeight = FontWeight.Bold,
-                        style = MaterialTheme.typography.titleMedium,
+                        style = MaterialTheme.typography.titleSmall,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
                     )

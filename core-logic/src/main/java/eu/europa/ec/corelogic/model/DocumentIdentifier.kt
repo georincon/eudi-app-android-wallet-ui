@@ -93,3 +93,18 @@ fun DocumentIdentifier.toDocumentCategory(allCategories: DocumentCategories): Do
         this.formatType.lowercase() in formatTypesInCategory
     }?.key ?: DocumentCategory.Other
 }
+
+/**
+ * Ranks documents by their category's [DocumentCategory.order] (ascending), preserving each
+ * document's original relative order within its own category — the exact grouping/sorting the
+ * documents list screen applies to build its sections. Exposed here so any other screen that
+ * needs a document's stable, deterministic position among ALL of the user's documents (e.g. to
+ * assign it a color, see `toCredentialMetallicGradient`) ranks it identically to the list.
+ */
+fun List<Document>.rankedByCategory(allCategories: DocumentCategories): List<Document> {
+    return this
+        .groupBy { it.toDocumentIdentifier().toDocumentCategory(allCategories) }
+        .toList()
+        .sortedBy { (category, _) -> category.order }
+        .flatMap { (_, documents) -> documents }
+}

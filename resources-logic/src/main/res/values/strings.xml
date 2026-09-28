@@ -417,6 +417,26 @@
     <string name="document_claim_user_pseudonym">Seudónimo</string>
     <string name="document_claim_attestation_legal_category">Categoría legal de la certificación</string>
 
+    <!-- Campos (claims) de credenciales académicas (ej. "Academic Credential"). -->
+    <string name="document_claim_academic_level">Nivel Académico</string>
+    <string name="document_claim_academic_program_code">Código del Programa</string>
+    <string name="document_claim_academic_program_name">Nombre del Programa</string>
+    <string name="document_claim_academic_status">Estado Académico</string>
+    <string name="document_claim_academic_unit">Unidad Académica</string>
+    <string name="document_claim_accumulated_average">Promedio Acumulado</string>
+    <string name="document_claim_approved_credits">Créditos Aprobados</string>
+    <string name="document_claim_awarded_title">Título Otorgado</string>
+    <string name="document_claim_enrollment_date">Fecha de Ingreso</string>
+    <string name="document_claim_faculty">Facultad</string>
+    <string name="document_claim_graduation_date">Fecha de Grado</string>
+    <string name="document_claim_identification_type">Tipo de Identificación</string>
+    <string name="document_claim_issuing_institution_name">Nombre de la Institución</string>
+    <string name="document_claim_program_duration_semesters">Duración del Programa (Semestres)</string>
+    <string name="document_claim_program_modality">Modalidad del Programa</string>
+    <string name="document_claim_semesters_completed">Semestres Cursados</string>
+    <string name="document_claim_student_identification_number">Número de Identificación Estudiantil</string>
+    <string name="document_claim_total_credits">Créditos Totales</string>
+
     <string name="document_details_bottom_sheet_delete_title">@string/generic_bottom_sheet_delete_title</string>
     <string name="document_details_bottom_sheet_delete_subtitle">@string/generic_bottom_sheet_delete_subtitle</string>
     <string name="document_details_bottom_sheet_delete_primary_button_text">@string/generic_bottom_sheet_delete_primary_button_text</string>
@@ -529,6 +549,10 @@
     <string name="issuance_partially_blocked_bottom_sheet_title">No se añadieron todos los documentos</string>
     <string name="issuance_partially_blocked_bottom_sheet_message">Algunos documentos se han añadido a tu Wallet. El resto fue bloqueado porque no se pudo verificar a su proveedor, y no se compartió ningún dato para ellos.</string>
     <string name="issuance_partially_blocked_bottom_sheet_primary_button_text">@string/generic_continue</string>
+    <string name="issuance_duplicate_document_bottom_sheet_title">Ya tienes esta credencial</string>
+    <string name="issuance_duplicate_document_bottom_sheet_message">La credencial que acabas de añadir ya existe en tu Wallet (mismo tipo y mismo programa/detalle). ¿Deseas conservarla de todas formas o descartar esta nueva?</string>
+    <string name="issuance_duplicate_document_bottom_sheet_positive_button_text">Conservar de todas formas</string>
+    <string name="issuance_duplicate_document_bottom_sheet_negative_button_text">Descartar la nueva</string>
     <!--endregion-->
 
     <!-- region Categorías de documentos -->

@@ -31,4 +31,5 @@ data class DocumentDetailsUi(
     val documentName: String,
     val documentIdentifier: DocumentIdentifier,
     val documentClaims: List<ExpandableListItemUi>,
+    val positionIndex: Int,
 )

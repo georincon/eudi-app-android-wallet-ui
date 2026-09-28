@@ -29,4 +29,6 @@ data class DocumentDetailsDomain(
     val documentClaims: List<ClaimDomain>,
     val documentIssuanceDate: String,
     val documentExpirationDate: String?,
+    /** This document's rank among ALL of the user's documents, see [eu.europa.ec.corelogic.model.rankedByCategory]. */
+    val positionIndex: Int,
 )

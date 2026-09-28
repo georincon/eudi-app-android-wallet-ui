@@ -417,19 +417,47 @@ private fun Content(
                 item {
                     NoResults(modifier = Modifier.fillMaxWidth())
                 }
-            } else {
-                itemsIndexed(items = state.documentsUi) { index, (documentCategory, documents) ->
-                    DocumentCategory(
+            } else if (isExtendedView) {
+                // Every credential, across all categories, gets the exact same standard spacing
+                // to the next one, instead of a smaller gap within a category and a much bigger
+                // one between categories.
+                val allDocuments = state.documentsUi.flatMap { (_, documents) -> documents }
+                itemsIndexed(
+                    items = allDocuments,
+                    key = { _, documentItem -> documentItem.uiData.itemId },
+                ) { index, documentItem ->
+                    val categoryLabel = stringResource(documentItem.documentCategory.stringResId)
+                    CredentialCard(
                         modifier = Modifier.fillMaxWidth(),
-                        category = documentCategory,
-                        documents = documents,
-                        isExtendedView = isExtendedView,
-                        onEventSend = onEventSend
+                        item = documentItem.uiData,
+                        documentIdentifier = documentItem.documentIdentifier,
+                        category = documentItem.categoryOverride ?: categoryLabel,
+                        positionIndex = index,
+                        onClick = { onDocumentItemClick(documentItem, onEventSend) },
                     )
 
-                    if (index != state.documentsUi.lastIndex) {
-                        VSpacer.ExtraLarge()
+                    if (index != allDocuments.lastIndex) {
+                        VSpacer.Medium()
                     }
+                }
+
+                item(key = "fab-spacer") {
+                    Spacer(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = SPACING_SMALL.dp)
+                            .height(WrapFabDefaults.Height)
+                    )
+                }
+            } else {
+                // Compact view: every credential, across all categories, is part of one single
+                // deck with the same peek spacing, instead of one separate stack per category.
+                item(key = "credential-deck") {
+                    CredentialStack(
+                        modifier = Modifier.fillMaxWidth(),
+                        documents = state.documentsUi.flatMap { (_, documents) -> documents },
+                        onItemClick = { onDocumentItemClick(it, onEventSend) },
+                    )
                 }
 
                 item(key = "fab-spacer") {
@@ -553,53 +581,23 @@ private fun ViewModeToggleButton(
     }
 }
 
-@Composable
-private fun DocumentCategory(
-    modifier: Modifier = Modifier,
-    category: DocumentCategory,
-    documents: List<DocumentUi>,
-    isExtendedView: Boolean,
-    onEventSend: (Event) -> Unit,
-) {
-    val categoryLabel = stringResource(category.stringResId)
-
-    val onItemClick: (DocumentUi) -> Unit = { documentItem ->
-        val onItemClickEvent = if (
-            documentItem.documentIssuanceState == DocumentIssuanceStateUi.Pending
-            || documentItem.documentIssuanceState == DocumentIssuanceStateUi.Failed
-        ) {
-            Event.BottomSheet.DeferredDocument.DeferredNotReadyYet.DocumentSelected(
-                documentId = documentItem.uiData.itemId
-            )
-        } else {
-            Event.GoToDocumentDetails(documentItem.uiData.itemId)
-        }
-        onEventSend(onItemClickEvent)
-    }
-
-    if (isExtendedView) {
-        Column(
-            modifier = modifier,
-            verticalArrangement = Arrangement.spacedBy(SPACING_MEDIUM.dp)
-        ) {
-            documents.forEach { documentItem: DocumentUi ->
-                CredentialCard(
-                    modifier = Modifier.fillMaxWidth(),
-                    item = documentItem.uiData,
-                    documentIdentifier = documentItem.documentIdentifier,
-                    category = categoryLabel,
-                    onClick = { onItemClick(documentItem) },
-                )
-            }
-        }
-    } else {
-        CredentialStack(
-            modifier = modifier,
-            documents = documents,
-            category = categoryLabel,
-            onItemClick = onItemClick,
+/**
+ * Resolves the [Event] a tap on [documentItem] should send, and forwards it to [onEventSend].
+ * Shared by both the extended (per-category) and compact (single flattened deck) layouts so a
+ * credential's click behavior never depends on which view mode is active.
+ */
+private fun onDocumentItemClick(documentItem: DocumentUi, onEventSend: (Event) -> Unit) {
+    val onItemClickEvent = if (
+        documentItem.documentIssuanceState == DocumentIssuanceStateUi.Pending
+        || documentItem.documentIssuanceState == DocumentIssuanceStateUi.Failed
+    ) {
+        Event.BottomSheet.DeferredDocument.DeferredNotReadyYet.DocumentSelected(
+            documentId = documentItem.uiData.itemId
         )
+    } else {
+        Event.GoToDocumentDetails(documentItem.uiData.itemId)
     }
+    onEventSend(onItemClickEvent)
 }
 
 @Composable

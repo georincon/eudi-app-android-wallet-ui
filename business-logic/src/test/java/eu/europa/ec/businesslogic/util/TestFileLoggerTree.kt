@@ -107,7 +107,7 @@ class TestFileLoggerTree {
 
         Timber.i("untagged")
 
-        Assert.assertTrue(logger.files.single().readText().contains("I/EUDI: untagged"))
+        Assert.assertTrue(logger.files.single().readText().contains("I/AvanceWallet: untagged"))
     }
 
     @Test

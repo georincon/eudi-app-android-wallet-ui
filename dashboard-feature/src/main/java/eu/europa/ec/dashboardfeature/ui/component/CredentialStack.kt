@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import eu.europa.ec.dashboardfeature.ui.documents.list.model.DocumentUi
 
@@ -35,9 +36,14 @@ private val STACK_PEEK_HEIGHT = 72.dp
 
 /**
  * The "collapsed" (recogida) credential layout: full-size [CredentialCard]s stacked on top of one
- * another like a deck, each offset down by [STACK_PEEK_HEIGHT] so only the header strip of every
- * card behind the front one stays visible. The frontmost (last) card keeps its full original size
- * and shows all of its content, matching the reference wallet screenshot.
+ * another like a single deck, each offset down by [STACK_PEEK_HEIGHT] so only the header strip of
+ * every card behind the front one stays visible. The frontmost (last) card keeps its full original
+ * size and shows all of its content, matching the reference wallet screenshot.
+ *
+ * Takes the FULL, flattened credential list (every category combined) so every credential —
+ * regardless of category — is part of the same deck with the exact same peek spacing, and any
+ * newly added credential simply becomes the new frontmost card instead of starting a separate,
+ * visually detached stack.
  *
  * Every card — whether fully visible or only peeking — keeps the exact same [onItemClick]
  * navigation as the extended view: Compose only routes a tap to the topmost composable actually
@@ -47,7 +53,6 @@ private val STACK_PEEK_HEIGHT = 72.dp
 @Composable
 fun CredentialStack(
     documents: List<DocumentUi>,
-    category: String,
     onItemClick: (DocumentUi) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -69,7 +74,9 @@ fun CredentialStack(
                         .offset(y = STACK_PEEK_HEIGHT * index),
                     item = document.uiData,
                     documentIdentifier = document.documentIdentifier,
-                    category = category,
+                    category = document.categoryOverride
+                        ?: stringResource(document.documentCategory.stringResId),
+                    positionIndex = index,
                     onClick = { onItemClick(document) },
                 )
             }

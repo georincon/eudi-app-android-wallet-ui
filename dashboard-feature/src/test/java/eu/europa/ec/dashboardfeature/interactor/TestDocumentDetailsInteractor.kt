@@ -31,6 +31,7 @@ import eu.europa.ec.corelogic.controller.WalletCoreDocumentsController
 import eu.europa.ec.corelogic.model.ClaimDomain
 import eu.europa.ec.corelogic.model.ClaimPathDomain
 import eu.europa.ec.corelogic.model.ClaimType
+import eu.europa.ec.corelogic.model.DocumentCategories
 import eu.europa.ec.corelogic.model.DocumentIdentifier
 import eu.europa.ec.corelogic.model.UntrustedIssuerReasonDomain
 import eu.europa.ec.dashboardfeature.ui.documents.detail.model.DocumentDetailsDomain
@@ -165,6 +166,10 @@ class TestDocumentDetailsInteractor {
 
             val mockedPidWithBasicFields = getMockedPidWithBasicFields()
             mockGetDocumentByIdCall(response = mockedPidWithBasicFields)
+            whenever(walletCoreDocumentsController.getAllDocuments())
+                .thenReturn(listOf(mockedPidWithBasicFields))
+            whenever(walletCoreDocumentsController.getAllDocumentCategories())
+                .thenReturn(DocumentCategories(value = emptyMap()))
 
             mockIsDocumentLowOnCredentialsCall(response = mockedDocIsLowOnCredentials)
             val documentCredentialsInfoUi = getMockedDocumentCredentialsInfoUi(
@@ -216,6 +221,10 @@ class TestDocumentDetailsInteractor {
 
             val mockedPidWithBasicFields = getMockedPidWithBasicFields()
             mockGetDocumentByIdCall(response = mockedPidWithBasicFields)
+            whenever(walletCoreDocumentsController.getAllDocuments())
+                .thenReturn(listOf(mockedPidWithBasicFields))
+            whenever(walletCoreDocumentsController.getAllDocumentCategories())
+                .thenReturn(DocumentCategories(value = emptyMap()))
 
             mockIsDocumentLowOnCredentialsCall(response = mockedDocIsLowOnCredentials)
             val documentCredentialsInfoUi = getMockedDocumentCredentialsInfoUi(
@@ -267,6 +276,10 @@ class TestDocumentDetailsInteractor {
 
             val mockedPidWithBasicFields = getMockedPidWithBasicFields()
             mockGetDocumentByIdCall(response = mockedPidWithBasicFields)
+            whenever(walletCoreDocumentsController.getAllDocuments())
+                .thenReturn(listOf(mockedPidWithBasicFields))
+            whenever(walletCoreDocumentsController.getAllDocumentCategories())
+                .thenReturn(DocumentCategories(value = emptyMap()))
 
             mockIsDocumentLowOnCredentialsCall(response = mockedDocIsLowOnCredentials)
             val documentCredentialsInfoUi = getMockedDocumentCredentialsInfoUi(
@@ -318,6 +331,10 @@ class TestDocumentDetailsInteractor {
 
             val mockedMdlWithBasicFields = getMockedMdlWithBasicFields()
             mockGetDocumentByIdCall(response = mockedMdlWithBasicFields)
+            whenever(walletCoreDocumentsController.getAllDocuments())
+                .thenReturn(listOf(mockedMdlWithBasicFields))
+            whenever(walletCoreDocumentsController.getAllDocumentCategories())
+                .thenReturn(DocumentCategories(value = emptyMap()))
 
             mockIsDocumentLowOnCredentialsCall(response = mockedDocIsLowOnCredentials)
             val documentCredentialsInfoUi = getMockedDocumentCredentialsInfoUi(
@@ -399,20 +416,23 @@ class TestDocumentDetailsInteractor {
             )
 
             val mockedPidWithBasicFields = getMockedPidWithBasicFields()
-
-            mockGetDocumentByIdCall(
-                response = mockedPidWithBasicFields.copy(
-                    data = MsoMdocData(
-                        format = MsoMdocFormat(mockedMdocPidNameSpace),
-                        issuerMetadata = null,
-                        nameSpacedData = createMockedNamespaceData(
-                            mockedMdocPidNameSpace, mapOf(
-                                "no_data_item" to byteArrayOf(0)
-                            )
+            val mockedPidWithNoDataItem = mockedPidWithBasicFields.copy(
+                data = MsoMdocData(
+                    format = MsoMdocFormat(mockedMdocPidNameSpace),
+                    issuerMetadata = null,
+                    nameSpacedData = createMockedNamespaceData(
+                        mockedMdocPidNameSpace, mapOf(
+                            "no_data_item" to byteArrayOf(0)
                         )
                     )
                 )
             )
+
+            mockGetDocumentByIdCall(response = mockedPidWithNoDataItem)
+            whenever(walletCoreDocumentsController.getAllDocuments())
+                .thenReturn(listOf(mockedPidWithNoDataItem))
+            whenever(walletCoreDocumentsController.getAllDocumentCategories())
+                .thenReturn(DocumentCategories(value = emptyMap()))
 
             mockIsDocumentLowOnCredentialsCall(response = mockedDocIsLowOnCredentials)
             val documentCredentialsInfoUi = getMockedDocumentCredentialsInfoUi(
@@ -453,6 +473,7 @@ class TestDocumentDetailsInteractor {
                             ),
                             documentIssuanceDate = mockedFormattedIssuanceDate,
                             documentExpirationDate = mockedFormattedExpirationDate,
+                            positionIndex = 0,
                         ),
                         documentIsBookmarked = false,
                         documentCredentialsInfoUi = documentCredentialsInfoUi,

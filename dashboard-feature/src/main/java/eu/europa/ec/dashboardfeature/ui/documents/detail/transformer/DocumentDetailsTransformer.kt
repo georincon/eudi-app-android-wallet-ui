@@ -37,7 +37,8 @@ object DocumentDetailsTransformer {
     suspend fun transformToDocumentDetailsDomain(
         document: IssuedDocument,
         resourceProvider: ResourceProvider,
-        uuidProvider: UuidProvider
+        uuidProvider: UuidProvider,
+        positionIndex: Int,
     ): Result<DocumentDetailsDomain> = runCatching {
         val claimsPaths = document.data.claims.flatMap { claim ->
             claim.toClaimPaths()
@@ -63,6 +64,7 @@ object DocumentDetailsTransformer {
             documentExpirationDate = document.getExpiryDate()?.formatInstant(
                 pattern = DAY_MONTH_YEAR_FULL_PATTERN
             ),
+            positionIndex = positionIndex,
         )
     }
 
@@ -80,6 +82,7 @@ object DocumentDetailsTransformer {
             documentConfigId = this.documentConfigId,
             documentIdentifier = this.documentIdentifier,
             documentClaims = documentDetailsUi,
+            positionIndex = this.positionIndex,
         )
     }
 

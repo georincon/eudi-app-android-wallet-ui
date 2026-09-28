@@ -35,6 +35,7 @@ import eu.europa.ec.businesslogic.validator.model.FilterableItem
 import eu.europa.ec.businesslogic.validator.model.FilterableList
 import eu.europa.ec.businesslogic.validator.model.Filters
 import eu.europa.ec.businesslogic.validator.model.SortOrder
+import eu.europa.ec.commonfeature.util.extractValueFromDocumentOrEmpty
 import eu.europa.ec.corelogic.controller.DeleteDocumentPartialState
 import eu.europa.ec.corelogic.controller.IssueDeferredDocumentPartialState
 import eu.europa.ec.corelogic.controller.WalletCoreDocumentsController
@@ -178,6 +179,21 @@ class DocumentsInteractorImpl(
     private val prefKeys: PrefKeys,
 ) : DocumentsInteractor {
 
+    /**
+     * Claim keys tried, in order, to find a document's academic program/degree name so it can
+     * be shown on its credential card instead of the generic [DocumentCategory.Other] label
+     * ("OTROS"). Best-effort: covers common English/Spanish naming across academic credential
+     * schemas since there is no single standardized claim name for this.
+     */
+    private val academicProgramClaimKeys = listOf(
+        "program", "program_name", "programName",
+        "programa", "nombre_programa", "nombrePrograma",
+        "degree", "degree_name", "degreeName",
+        "titulo", "título",
+        "course", "course_name", "courseName",
+        "carrera", "field_of_study", "fieldOfStudy",
+    )
+
     private val genericErrorMsg
         get() = resourceProvider.genericErrorMessage()
 
@@ -315,6 +331,15 @@ class DocumentsInteractorImpl(
                                 allCategories = documentCategories
                             )
 
+                            val categoryOverride = if (documentCategory == DocumentCategory.Other) {
+                                academicProgramClaimKeys.firstNotNullOfOrNull { key ->
+                                    extractValueFromDocumentOrEmpty(document, key)
+                                        .takeIf { it.isNotBlank() }
+                                }
+                            } else {
+                                null
+                            }
+
                             val documentName = document.name
 
                             val documentSearchTags = buildList {
@@ -400,6 +425,7 @@ class DocumentsInteractorImpl(
                                     ),
                                     documentIdentifier = documentIdentifier,
                                     documentCategory = documentCategory,
+                                    categoryOverride = categoryOverride,
                                 ),
                                 attributes = DocumentsFilterableAttributes(
                                     searchTags = documentSearchTags,

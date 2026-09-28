@@ -27,4 +27,10 @@ data class DocumentUi(
     val uiData: ListItemDataUi,
     val documentIdentifier: DocumentIdentifier,
     val documentCategory: DocumentCategory,
+    /**
+     * Label to show instead of [documentCategory]'s generic name (e.g. "OTROS") on the
+     * credential card, when a more specific one can be read off the document's own claims —
+     * e.g. an academic credential's program/degree name. Null falls back to the category name.
+     */
+    val categoryOverride: String? = null,
 ) : FilterableItemPayload

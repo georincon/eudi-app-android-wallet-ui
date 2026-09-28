@@ -26,6 +26,8 @@ import eu.europa.ec.businesslogic.extension.safeAsync
 import eu.europa.ec.businesslogic.util.safeLet
 import eu.europa.ec.commonfeature.config.SuccessUIConfig
 import eu.europa.ec.commonfeature.interactor.DeviceAuthenticationInteractor
+import eu.europa.ec.commonfeature.util.isDuplicateOf
+import eu.europa.ec.corelogic.controller.DeleteDocumentPartialState
 import eu.europa.ec.corelogic.controller.IssueDocumentsPartialState
 import eu.europa.ec.corelogic.controller.ResolveDocumentOfferPartialState
 import eu.europa.ec.corelogic.controller.WalletCoreDocumentsController
@@ -123,6 +125,15 @@ interface DocumentOfferInteractor {
     )
 
     fun resumeOpenId4VciWithAuthorization(uri: String)
+
+    /**
+     * Among [newDocumentIds] (just issued), returns the ones that are a duplicate of some OTHER,
+     * already-existing document (same type, same "identity" claim — e.g. the same academic
+     * program code) — see [eu.europa.ec.commonfeature.util.isDuplicateOf].
+     */
+    fun findDuplicateDocumentIds(newDocumentIds: List<DocumentId>): List<DocumentId>
+
+    fun deleteDocument(documentId: DocumentId): Flow<DeleteDocumentPartialState>
 }
 
 class DocumentOfferInteractorImpl(
@@ -332,6 +343,23 @@ class DocumentOfferInteractorImpl(
     override fun resumeOpenId4VciWithAuthorization(uri: String) {
         walletCoreDocumentsController.resumeOpenId4VciWithAuthorization(uri)
     }
+
+    override fun findDuplicateDocumentIds(newDocumentIds: List<DocumentId>): List<DocumentId> {
+        val allIssuedDocuments = walletCoreDocumentsController.getAllIssuedDocuments()
+        val newDocuments = allIssuedDocuments.filter { it.id in newDocumentIds }
+        val existingDocuments = allIssuedDocuments.filterNot { it.id in newDocumentIds }
+
+        return newDocuments
+            .filter { newDocument ->
+                existingDocuments.any { existingDocument ->
+                    newDocument.isDuplicateOf(existingDocument)
+                }
+            }
+            .map { it.id }
+    }
+
+    override fun deleteDocument(documentId: DocumentId): Flow<DeleteDocumentPartialState> =
+        walletCoreDocumentsController.deleteDocument(documentId)
 
     private fun buildGenericSuccessRouteForDeferred(
         description: String,

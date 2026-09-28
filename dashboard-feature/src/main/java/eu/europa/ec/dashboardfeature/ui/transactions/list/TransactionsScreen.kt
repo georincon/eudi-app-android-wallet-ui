@@ -244,7 +244,7 @@ private fun Content(
     ) {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(bottom = SPACING_MEDIUM.dp),
+            contentPadding = PaddingValues(top = SPACING_MEDIUM.dp, bottom = SPACING_MEDIUM.dp),
         ) {
             item {
                 val searchItemUi =

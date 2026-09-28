@@ -30,6 +30,8 @@ import eu.europa.ec.corelogic.model.ClaimDomain
 import eu.europa.ec.corelogic.model.ClaimPathDomain
 import eu.europa.ec.corelogic.model.ClaimPathSegment
 import eu.europa.ec.corelogic.model.ClaimType
+import eu.europa.ec.corelogic.model.DocumentIdentifier
+import eu.europa.ec.corelogic.model.toDocumentIdentifier
 import eu.europa.ec.eudi.wallet.document.IssuedDocument
 import eu.europa.ec.eudi.wallet.document.format.DocumentClaim
 import eu.europa.ec.eudi.wallet.document.format.MsoMdocClaim
@@ -52,6 +54,44 @@ fun extractValueFromDocumentOrEmpty(
         ?.value
         ?.toString()
         ?: ""
+}
+
+/**
+ * Claim keys tried, in order, to tell apart two documents of the exact same credential type that
+ * describe genuinely different things (e.g. two academic credentials for two different degree
+ * programs) from an accidental duplicate of the very same one. The first key present on the
+ * document (non-blank) is used as its "identity" for comparison purposes.
+ */
+private val DUPLICATE_DISTINGUISHING_CLAIM_KEYS = listOf("program_code")
+
+/**
+ * Whether [this] and [other] describe the SAME credential — same type, and (for types with a
+ * known distinguishing claim, see [DUPLICATE_DISTINGUISHING_CLAIM_KEYS]) the same "identity"
+ * value — rather than merely the same credential *type*. A person can legitimately hold several
+ * documents of one type (e.g. two different degree programs), so type alone is never enough to
+ * call something a duplicate; PID documents are never flagged as duplicates by this check.
+ */
+fun IssuedDocument.isDuplicateOf(other: IssuedDocument): Boolean {
+    if (this.id == other.id) return false
+
+    val thisIdentifier = this.toDocumentIdentifier()
+    if (thisIdentifier != other.toDocumentIdentifier()) return false
+    if (thisIdentifier !is DocumentIdentifier.OTHER) return false
+
+    val distinguishingKey = DUPLICATE_DISTINGUISHING_CLAIM_KEYS.firstOrNull { key ->
+        extractValueFromDocumentOrEmpty(this, key).isNotBlank()
+    }
+
+    return if (distinguishingKey != null) {
+        extractValueFromDocumentOrEmpty(this, distinguishingKey) ==
+            extractValueFromDocumentOrEmpty(other, distinguishingKey)
+    } else {
+        // No known distinguishing claim for this credential type: fall back to comparing every
+        // top-level claim value for exact equality, as a conservative safety net.
+        val theseClaims = this.data.claims.associate { it.identifierString to it.value?.toString().orEmpty() }
+        val otherClaims = other.data.claims.associate { it.identifierString to it.value?.toString().orEmpty() }
+        theseClaims == otherClaims
+    }
 }
 
 fun keyIsUserImage(key: String): Boolean {
@@ -157,6 +197,27 @@ private val LOCAL_CLAIM_LABELS: Map<String, Int> = mapOf(
     "un_distinguishing_sign" to R.string.document_claim_un_distinguishing_sign,
     DocumentJsonKeys.USER_PSEUDONYM to R.string.document_claim_user_pseudonym,
     "attestation_legal_category" to R.string.document_claim_attestation_legal_category,
+
+    // Academic credential claims (e.g. "Academic Credential"), keyed by the exact claim paths
+    // confirmed off this issuer's own credential metadata (urn:eudi:academic:credential:1).
+    "academic_level" to R.string.document_claim_academic_level,
+    "program_code" to R.string.document_claim_academic_program_code,
+    "program_name" to R.string.document_claim_academic_program_name,
+    "academic_status" to R.string.document_claim_academic_status,
+    "academic_unit" to R.string.document_claim_academic_unit,
+    "accumulated_average" to R.string.document_claim_accumulated_average,
+    "approved_credits" to R.string.document_claim_approved_credits,
+    "awarded_title" to R.string.document_claim_awarded_title,
+    "enrollment_date" to R.string.document_claim_enrollment_date,
+    "faculty" to R.string.document_claim_faculty,
+    "graduation_date" to R.string.document_claim_graduation_date,
+    "identification_type" to R.string.document_claim_identification_type,
+    "issuing_institution_name" to R.string.document_claim_issuing_institution_name,
+    "duration_semesters" to R.string.document_claim_program_duration_semesters,
+    "program_modality" to R.string.document_claim_program_modality,
+    "semesters_completed" to R.string.document_claim_semesters_completed,
+    "student_id" to R.string.document_claim_student_identification_number,
+    "total_credits" to R.string.document_claim_total_credits,
 )
 
 fun getReadableNameFromIdentifier(

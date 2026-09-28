@@ -24,18 +24,18 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import eu.europa.ec.uilogic.component.utils.SPACING_SMALL
 import eu.europa.ec.uilogic.component.wrap.WrapCard
-import eu.europa.ec.uilogic.component.wrap.shadowsAtElevation1
+import eu.europa.ec.uilogic.component.wrap.shadowsAtElevation2
 
 /**
  * Shown when there is no PID issued yet, so [UserBadge] always has a name/initials to render
@@ -52,9 +52,11 @@ const val FALLBACK_USER_INITIALS = "GR"
 /**
  * White, full-width app-bar-style container used to group the top-of-screen controls (menu
  * icon, profile badge, search bar, view toggle, etc.), shared by Home, Credenciales and
- * Conexiones. Spans edge-to-edge (no side margins, no rounded corners) with a soft shadow
- * along its bottom edge only, separating it from the scrollable content below.
+ * Conexiones. Spans edge-to-edge (square top corners, rounded bottom corners only) with a
+ * pronounced shadow along its bottom edge, separating it from the scrollable content below.
  */
+private val HeaderCardBottomCornerRadius = 20.dp
+
 @Composable
 fun HeaderCard(
     modifier: Modifier = Modifier,
@@ -62,11 +64,14 @@ fun HeaderCard(
 ) {
     WrapCard(
         modifier = modifier.fillMaxWidth(),
-        shape = RectangleShape,
+        shape = RoundedCornerShape(
+            bottomStart = HeaderCardBottomCornerRadius,
+            bottomEnd = HeaderCardBottomCornerRadius,
+        ),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
         ),
-        shadows = shadowsAtElevation1,
+        shadows = shadowsAtElevation2,
     ) {
         content()
     }

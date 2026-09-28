@@ -46,6 +46,7 @@ internal val mockedFullPidUi = DocumentDetailsUi(
     documentConfigId = "",
     documentIdentifier = DocumentIdentifier.MdocPid,
     documentClaims = emptyList(),
+    positionIndex = 0,
 )
 
 internal val mockedPendingPidUi = mockedFullPidUi
@@ -147,6 +148,7 @@ internal val mockedBasicPidDomain = DocumentDetailsDomain(
     },
     documentIssuanceDate = mockedFormattedIssuanceDate,
     documentExpirationDate = mockedFormattedExpirationDate,
+    positionIndex = 0,
 )
 
 internal val mockedFullMdlUi = DocumentDetailsUi(
@@ -156,6 +158,7 @@ internal val mockedFullMdlUi = DocumentDetailsUi(
     documentConfigId = "",
     documentIdentifier = DocumentIdentifier.OTHER("org.iso.18013.5.1.mDL"),
     documentClaims = emptyList(),
+    positionIndex = 0,
 )
 
 internal val mockedPendingMdlUi = mockedFullMdlUi
@@ -296,6 +299,7 @@ internal val mockedBasicMdlDomain = DocumentDetailsDomain(
     },
     documentIssuanceDate = mockedFormattedIssuanceDate,
     documentExpirationDate = mockedFormattedExpirationDate,
+    positionIndex = 0,
 )
 
 internal val mockedMdlUiWithNoUserNameAndNoUserImage: DocumentDetailsUi = mockedFullMdlUi
