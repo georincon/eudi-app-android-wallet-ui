@@ -70,7 +70,7 @@ data class State(
     val isBottomSheetOpen: Boolean = false,
     val sheetContent: DocumentsBottomSheetContent = Filters(filters = emptyList()),
 
-    val documentsUi: List<Pair<DocumentCategory, List<DocumentUi>>> = emptyList(),
+    val documentsUi: List<DocumentUi> = emptyList(),
     val showNoResultsFound: Boolean = false,
     val deferredFailedDocIds: List<DocumentId> = emptyList(),
     val searchText: String = "",
@@ -97,6 +97,12 @@ sealed class Event : ViewEvent {
 
     data object AddDocumentPressed : Event()
     data object FiltersPressed : Event()
+
+    /**
+     * The user dragged a credential to a new spot (deck or list view). [newOrder] is the full,
+     * currently-displayed document list in its new order.
+     */
+    data class OnCredentialOrderChanged(val newOrder: List<DocumentUi>) : Event()
 
     sealed class BottomSheet : Event() {
         data class UpdateBottomSheetState(val isOpen: Boolean) : BottomSheet()
@@ -204,6 +210,13 @@ class DocumentsViewModel(
 
             is Event.GoToDocumentDetails -> {
                 goToDocumentDetails(event.docId)
+            }
+
+            is Event.OnCredentialOrderChanged -> {
+                setState { copy(documentsUi = event.newOrder) }
+                viewModelScope.launch {
+                    interactor.saveCredentialOrder(event.newOrder.map { it.uiData.itemId })
+                }
             }
 
             is Event.AddDocumentPressed -> {

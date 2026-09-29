@@ -33,6 +33,7 @@ androidxComposeRuntimeTracing = "1.12.1"
 cloudy = "0.7.1"
 material3 = "1.4.0"
 materialIcons = "1.7.8"
+reorderable = "3.1.0"
 
 # CameraX
 cameraCore = "1.6.2"
@@ -148,6 +149,7 @@ androidx-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-toolin
 androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
 androidx-compose-ui-util = { group = "androidx.compose.ui", name = "ui-util" }
 compose-cloudy = { group = "com.github.skydoves", name = "cloudy", version.ref = "cloudy" }
+compose-reorderable = { group = "sh.calvin.reorderable", name = "reorderable", version.ref = "reorderable" }
 
 # CameraX
 androidx-camera-camera2 = { group = "androidx.camera", name = "camera-camera2", version.ref = "cameraCore" }

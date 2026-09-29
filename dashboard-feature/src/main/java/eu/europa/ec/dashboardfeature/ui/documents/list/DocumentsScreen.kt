@@ -61,6 +61,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -133,6 +134,8 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import sh.calvin.reorderable.ReorderableItem
+import sh.calvin.reorderable.rememberReorderableLazyListState
 
 typealias DashboardEvent = eu.europa.ec.dashboardfeature.ui.dashboard.Event
 typealias OpenSideMenuEvent = eu.europa.ec.dashboardfeature.ui.dashboard.Event.SideMenu.Open
@@ -158,7 +161,7 @@ fun DocumentsScreen(
 
     val listScrollState = rememberLazyListState()
     var fabVisible by rememberSaveable { mutableStateOf(false) }
-    var isExtendedView by rememberSaveable { mutableStateOf(true) }
+    var isExtendedView by rememberSaveable { mutableStateOf(false) }
 
     LifecycleEffect(
         lifecycleOwner = LocalLifecycleOwner.current,
@@ -390,6 +393,21 @@ private fun Content(
     onFilterClick: () -> Unit = {},
     onViewModeChange: (Boolean) -> Unit = {},
 ) {
+    // Lets any credential card in the extended (list) view be long-press-dragged to reorder it;
+    // matched back to state.documentsUi by document id (not raw LazyColumn index), since the
+    // "search-and-view-mode" header and "fab-spacer" footer items are part of the same list but
+    // are never wrapped in ReorderableItem, so they're simply never found by that id lookup.
+    val reorderableLazyListState = rememberReorderableLazyListState(scrollState) { from, to ->
+        val fromIndex = state.documentsUi.indexOfFirst { it.uiData.itemId == from.key }
+        val toIndex = state.documentsUi.indexOfFirst { it.uiData.itemId == to.key }
+        if (fromIndex != -1 && toIndex != -1) {
+            val newOrder = state.documentsUi.toMutableList().apply {
+                add(toIndex, removeAt(fromIndex))
+            }
+            onEventSend(Event.OnCredentialOrderChanged(newOrder))
+        }
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -421,22 +439,33 @@ private fun Content(
                 // Every credential, across all categories, gets the exact same standard spacing
                 // to the next one, instead of a smaller gap within a category and a much bigger
                 // one between categories.
-                val allDocuments = state.documentsUi.flatMap { (_, documents) -> documents }
                 itemsIndexed(
-                    items = allDocuments,
+                    items = state.documentsUi,
                     key = { _, documentItem -> documentItem.uiData.itemId },
                 ) { index, documentItem ->
-                    val categoryLabel = stringResource(documentItem.documentCategory.stringResId)
-                    CredentialCard(
-                        modifier = Modifier.fillMaxWidth(),
-                        item = documentItem.uiData,
-                        documentIdentifier = documentItem.documentIdentifier,
-                        category = documentItem.categoryOverride ?: categoryLabel,
-                        positionIndex = index,
-                        onClick = { onDocumentItemClick(documentItem, onEventSend) },
-                    )
+                    ReorderableItem(
+                        state = reorderableLazyListState,
+                        key = documentItem.uiData.itemId,
+                    ) { isDragging ->
+                        val categoryLabel = stringResource(documentItem.documentCategory.stringResId)
+                        CredentialCard(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .graphicsLayer {
+                                    val scale = if (isDragging) 1.03f else 1f
+                                    scaleX = scale
+                                    scaleY = scale
+                                }
+                                .longPressDraggableHandle(),
+                            item = documentItem.uiData,
+                            documentIdentifier = documentItem.documentIdentifier,
+                            category = documentItem.categoryOverride ?: categoryLabel,
+                            positionIndex = documentItem.colorIndex,
+                            onClick = { onDocumentItemClick(documentItem, onEventSend) },
+                        )
+                    }
 
-                    if (index != allDocuments.lastIndex) {
+                    if (index != state.documentsUi.lastIndex) {
                         VSpacer.Medium()
                     }
                 }
@@ -455,8 +484,11 @@ private fun Content(
                 item(key = "credential-deck") {
                     CredentialStack(
                         modifier = Modifier.fillMaxWidth(),
-                        documents = state.documentsUi.flatMap { (_, documents) -> documents },
+                        documents = state.documentsUi,
                         onItemClick = { onDocumentItemClick(it, onEventSend) },
+                        onReorder = { newOrder ->
+                            onEventSend(Event.OnCredentialOrderChanged(newOrder))
+                        },
                     )
                 }
 
@@ -865,7 +897,7 @@ private fun DocumentsScreenPreview() {
                 state = State(
                     isLoading = false,
                     isFilteringActive = false,
-                    documentsUi = documentsList.groupBy { it.documentCategory }.toList(),
+                    documentsUi = documentsList,
                 ),
                 effectFlow = Channel<Effect>().receiveAsFlow(),
                 onEventSend = {},

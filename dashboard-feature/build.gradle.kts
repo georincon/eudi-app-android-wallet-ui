@@ -32,6 +32,10 @@ moduleConfig {
     module = LibraryModule.DashboardFeature
 }
 
+dependencies {
+    implementation(libs.compose.reorderable)
+}
+
 excludeFromKoverReport(
     excludedClasses = KoverExclusionRules.DashboardFeature.classes,
     excludedPackages = KoverExclusionRules.DashboardFeature.packages,

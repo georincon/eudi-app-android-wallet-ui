@@ -79,7 +79,7 @@ import kotlinx.coroutines.withContext
 
 sealed class DocumentInteractorFilterPartialState {
     data class FilterApplyResult(
-        val documents: List<Pair<DocumentCategory, List<DocumentUi>>>,
+        val documents: List<DocumentUi>,
         val filters: List<ExpandableListItemUi.NestedListItem>,
         val allDefaultFiltersAreSelected: Boolean,
     ) : DocumentInteractorFilterPartialState()
@@ -152,6 +152,13 @@ interface DocumentsInteractor {
     ): Flow<DocumentInteractorDeleteDocumentPartialState>
 
     fun onFilterStateChange(): Flow<DocumentInteractorFilterPartialState>
+
+    /**
+     * Persists the user's manually-chosen credential display order (front-to-back / top-to-bottom),
+     * so it survives future app opens. Pass the full, currently-displayed list of document ids in
+     * their new order.
+     */
+    suspend fun saveCredentialOrder(orderedDocumentIds: List<String>)
     fun initializeFilters(
         filterableList: FilterableList,
     )
@@ -194,12 +201,16 @@ class DocumentsInteractorImpl(
         "carrera", "field_of_study", "fieldOfStudy",
     )
 
+    private companion object {
+        private const val CREDENTIAL_ORDER_DELIMITER = ","
+    }
+
     private val genericErrorMsg
         get() = resourceProvider.genericErrorMessage()
 
     override fun onFilterStateChange(): Flow<DocumentInteractorFilterPartialState> =
         filterValidator.onFilterStateChange().map { result ->
-            val documentsUi = when (result) {
+            val unorderedDocuments = when (result) {
                 is FilterValidatorPartialState.FilterListResult.FilterApplyResult -> {
                     result.filteredList.items.mapNotNull { filterableItem ->
                         filterableItem.payload as? DocumentUi
@@ -213,9 +224,16 @@ class DocumentsInteractorImpl(
                 else -> {
                     emptyList()
                 }
-            }.groupBy {
-                it.documentCategory
-            }.toList().sortedBy { it.first.order }
+            }
+
+            // Stable (category-then-source-order) default: every document's color is derived from
+            // its rank HERE, so it never changes when the user drags a credential elsewhere in the
+            // display order below.
+            val defaultOrderedDocuments = unorderedDocuments
+                .sortedBy { it.documentCategory.order }
+                .mapIndexed { index, document -> document.copy(colorIndex = index) }
+
+            val documentsUi = applyCredentialDisplayOrder(defaultOrderedDocuments)
 
             val filtersUi = result.updatedFilters.filterGroups.map { filterGroup ->
                 ExpandableListItemUi.NestedListItem(
@@ -275,6 +293,31 @@ class DocumentsInteractorImpl(
                 }
             }
         }
+
+    /**
+     * Reorders [defaultOrderedDocuments] to match the user's saved credential order (see
+     * [PrefKeys.getCredentialOrder]), if any: documents present in the saved order come first, in
+     * that order; anything else (never reordered, or added since) keeps its default relative
+     * order and is appended at the end.
+     */
+    private suspend fun applyCredentialDisplayOrder(
+        defaultOrderedDocuments: List<DocumentUi>,
+    ): List<DocumentUi> {
+        val savedOrder = prefKeys.getCredentialOrder()
+            .split(CREDENTIAL_ORDER_DELIMITER)
+            .filter { it.isNotBlank() }
+
+        if (savedOrder.isEmpty()) return defaultOrderedDocuments
+
+        val documentsById = defaultOrderedDocuments.associateBy { it.uiData.itemId }
+        val reordered = savedOrder.mapNotNull { documentsById[it] }
+        val newDocuments = defaultOrderedDocuments.filterNot { it.uiData.itemId in savedOrder }
+        return reordered + newDocuments
+    }
+
+    override suspend fun saveCredentialOrder(orderedDocumentIds: List<String>) {
+        prefKeys.setCredentialOrder(orderedDocumentIds.joinToString(CREDENTIAL_ORDER_DELIMITER))
+    }
 
     override fun initializeFilters(
         filterableList: FilterableList,

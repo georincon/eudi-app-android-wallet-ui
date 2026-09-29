@@ -129,6 +129,7 @@ class TestDocumentsInteractor {
 
         whenever(resourceProvider.genericErrorMessage()).thenReturn(mockedGenericErrorMessage)
         whenever(configLogic.forcePidActivation).thenReturn(true)
+        whenever(suspend { prefKeys.getCredentialOrder() }).thenReturn("")
 
         mockDocumentId = "mockDocumentId"
         mockDocumentName = "mockDocumentName"
@@ -598,9 +599,9 @@ class TestDocumentsInteractor {
             interactor.onFilterStateChange().runFlowTest {
                 val state = awaitItem()
                 assertTrue(state is DocumentInteractorFilterPartialState.FilterApplyResult)
-                assertEquals(state.documents.first().second.first().documentCategory.id, 1)
+                assertEquals(state.documents.first().documentCategory.id, 1)
                 assertEquals(
-                    (state.documents.first().second.first().uiData.mainContentData as ListItemMainContentDataUi.Text).text,
+                    (state.documents.first().uiData.mainContentData as ListItemMainContentDataUi.Text).text,
                     "test"
                 )
             }
@@ -1041,8 +1042,7 @@ class TestDocumentsInteractor {
                 // Then
                 val state = awaitItem()
                 assertTrue(state is DocumentInteractorFilterPartialState.FilterApplyResult)
-                val total = state.documents.sumOf { it.second.size }
-                assertEquals(0, total)
+                assertEquals(0, state.documents.size)
             }
         }
     }

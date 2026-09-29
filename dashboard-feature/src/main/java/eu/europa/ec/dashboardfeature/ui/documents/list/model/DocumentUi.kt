@@ -33,4 +33,10 @@ data class DocumentUi(
      * e.g. an academic credential's program/degree name. Null falls back to the category name.
      */
     val categoryOverride: String? = null,
+    /**
+     * This document's rank in the STABLE default order (category, then source order) — used only
+     * to pick its metallic gradient color (see [eu.europa.ec.dashboardfeature.ui.component.toCredentialMetallicGradient]),
+     * so its color never changes when the user drags it elsewhere in the display order.
+     */
+    val colorIndex: Int = 0,
 ) : FilterableItemPayload

@@ -191,6 +191,15 @@ interface PrefKeys {
     suspend fun getSessionId(): String
     suspend fun setDbKey(value: ByteArray)
     suspend fun getDbKey(): ByteArray?
+
+    /**
+     * The user's manually-chosen credential display order, as a comma-separated list of document
+     * ids (front-to-back for the credential deck / top-to-bottom for the list), most-recently
+     * saved wins. Empty when the user has never reordered their credentials, in which case the
+     * default (category-then-issuance order) is used.
+     */
+    suspend fun getCredentialOrder(): String
+    suspend fun setCredentialOrder(value: String)
 }
 
 class PrefKeysImpl(
@@ -237,5 +246,13 @@ class PrefKeysImpl(
     override suspend fun getDbKey(): ByteArray? {
         val encoded = prefsController.getString("dbKey", "").ifBlank { return null }
         return encoded.decodeFromBase64(flags = Base64.NO_WRAP)
+    }
+
+    override suspend fun getCredentialOrder(): String {
+        return prefsController.getString("CredentialOrder", "")
+    }
+
+    override suspend fun setCredentialOrder(value: String) {
+        prefsController.setString("CredentialOrder", value)
     }
 }
