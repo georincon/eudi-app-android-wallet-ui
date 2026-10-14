@@ -34,6 +34,21 @@ fun Document.localizedIssuerMetadata(locale: Locale): IssuerMetadata.IssuerDispl
 }
 
 /**
+ * The display metadata for this document's own credential configuration (name, logo, colors),
+ * as opposed to [localizedIssuerMetadata] which describes the issuer itself. An issuer's generic
+ * branding logo (e.g. a university's logo) is not necessarily the right icon for every credential
+ * type it issues, so callers rendering a per-document icon should prefer this over the issuer's.
+ */
+fun Document.localizedDocumentDisplay(locale: Locale): IssuerMetadata.Display? {
+    return issuerMetadata?.display.getLocalizedValue(
+        userLocale = locale,
+        fallback = null,
+        localeExtractor = { it.locale },
+        valueExtractor = { it }
+    )
+}
+
+/**
  * The document's expiry instant: the latest `validUntil` across its credentials, or `null` when the
  * document has no such credentials (e.g. an exhausted once-only batch).
  *

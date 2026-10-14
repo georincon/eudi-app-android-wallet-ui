@@ -30,6 +30,7 @@ import eu.europa.ec.corelogic.controller.DeleteDocumentPartialState
 import eu.europa.ec.corelogic.controller.IssueDocumentsPartialState
 import eu.europa.ec.corelogic.controller.WalletCoreDocumentsController
 import eu.europa.ec.corelogic.extension.isExpired
+import eu.europa.ec.corelogic.extension.localizedDocumentDisplay
 import eu.europa.ec.corelogic.extension.localizedIssuerMetadata
 import eu.europa.ec.corelogic.model.DocumentIdentifier
 import eu.europa.ec.corelogic.model.UntrustedIssuerReasonDomain
@@ -175,7 +176,8 @@ class DocumentDetailsInteractorImpl(
 
                 val userLocale = resourceProvider.getLocale()
                 val issuerName = safeIssuedDocument.localizedIssuerMetadata(userLocale)?.name
-                val issuerLogo = safeIssuedDocument.localizedIssuerMetadata(userLocale)?.logo
+                val issuerLogo = safeIssuedDocument.localizedDocumentDisplay(userLocale)?.logo
+                    ?: safeIssuedDocument.localizedIssuerMetadata(userLocale)?.logo
 
                 val documentIsBookmarked =
                     walletCoreDocumentsController.isDocumentBookmarked(documentId)

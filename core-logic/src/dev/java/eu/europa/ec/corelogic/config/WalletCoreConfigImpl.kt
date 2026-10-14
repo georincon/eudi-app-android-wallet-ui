@@ -92,10 +92,11 @@ internal class WalletCoreConfigImpl(
                     configureEtsiTrust {
                         loteLocations(
                             SupportedLists(
-                                pidProviders = Uri("https://trustedlist.serviceproviders.eudiw.dev/LOTE/json/PIDProviders.jwt"),
+                                pidProviders = Uri("https://civica.avance.org.co/tl-publisher/TL/PID/current.json"),
                                 wrpacProviders = Uri("https://trustedlist.serviceproviders.eudiw.dev/LOTE/json/WRPACProviders.jwt"),
                                 wrprcProviders = Uri("https://trustedlist.serviceproviders.eudiw.dev/LOTE/json/WRPRCProviders.jwt"),
-                                pubEaaProviders = Uri("https://trustedlist.serviceproviders.eudiw.dev/LOTE/json/PubEAAProviders.jwt"),
+                                pubEaaProviders = Uri("https://civica.avance.org.co/tl-publisher/TL/PUBEAA/current.json"),
+                                walletProviders = Uri("https://civica.avance.org.co/tl-publisher/TL/WP/current.json"),
                             )
                         )
 
@@ -242,5 +243,5 @@ internal class WalletCoreConfigImpl(
         )
 
     override val walletProviderHost: String
-        get() = "https://dev.wallet-provider.eudiw.dev"
+        get() = "https://civica-desarrollo.avance.org.co/spartans"
 }

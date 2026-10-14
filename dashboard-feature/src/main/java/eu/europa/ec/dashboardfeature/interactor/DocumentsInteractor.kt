@@ -41,6 +41,7 @@ import eu.europa.ec.corelogic.controller.IssueDeferredDocumentPartialState
 import eu.europa.ec.corelogic.controller.WalletCoreDocumentsController
 import eu.europa.ec.corelogic.extension.getExpiryDate
 import eu.europa.ec.corelogic.extension.isExpired
+import eu.europa.ec.corelogic.extension.localizedDocumentDisplay
 import eu.europa.ec.corelogic.extension.localizedIssuerMetadata
 import eu.europa.ec.corelogic.model.DeferredDocumentDataDomain
 import eu.europa.ec.corelogic.model.DocumentCategory
@@ -364,6 +365,8 @@ class DocumentsInteractorImpl(
                         is IssuedDocument -> {
                             val localizedIssuerMetadata =
                                 document.localizedIssuerMetadata(userLocale)
+                            val localizedDocumentDisplay =
+                                document.localizedDocumentDisplay(userLocale)
 
                             val issuerName = localizedIssuerMetadata?.name
                                 ?: resourceProvider.getString(R.string.documents_screen_filters_unknown_issuer)
@@ -460,7 +463,8 @@ class DocumentsInteractorImpl(
                                         overlineText = issuerName,
                                         supportingContentData = supportingContentData,
                                         leadingContentData = ListItemLeadingContentDataUi.AsyncImage(
-                                            imageUrl = localizedIssuerMetadata?.logo?.uri.toString(),
+                                            imageUrl = (localizedDocumentDisplay?.logo?.uri
+                                                ?: localizedIssuerMetadata?.logo?.uri).toString(),
                                             contentDescription = resourceProvider.getString(R.string.content_description_issuer_logo_icon),
                                             errorImage = AppIcons.Id,
                                         ),
@@ -485,6 +489,8 @@ class DocumentsInteractorImpl(
                         is UnsignedDocument -> {
                             val localizedIssuerMetadata =
                                 document.localizedIssuerMetadata(userLocale)
+                            val localizedDocumentDisplay =
+                                document.localizedDocumentDisplay(userLocale)
 
                             val issuerName = localizedIssuerMetadata?.name
                                 ?: resourceProvider.getString(R.string.documents_screen_filters_unknown_issuer)
@@ -516,7 +522,8 @@ class DocumentsInteractorImpl(
                                             textColorKey = ThemeColorKey.Warning,
                                         ),
                                         leadingContentData = ListItemLeadingContentDataUi.AsyncImage(
-                                            imageUrl = localizedIssuerMetadata?.logo?.uri.toString(),
+                                            imageUrl = (localizedDocumentDisplay?.logo?.uri
+                                                ?: localizedIssuerMetadata?.logo?.uri).toString(),
                                             contentDescription = resourceProvider.getString(R.string.content_description_issuer_logo_icon),
                                             errorImage = AppIcons.Id,
                                         ),
